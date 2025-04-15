@@ -13,7 +13,7 @@ def get_greetings(current_date: datetime) -> str:
     """Принимает объект datetime, возвращает часть суток строкой"""
     result = ""
     hour = current_date.hour
-    if hour >= 0 and hour < 6:
+    if 0 <= hour < 6:
         result = "Доброй ночи"
     elif hour < 12:
         result = "Доброе утро"
@@ -21,5 +21,5 @@ def get_greetings(current_date: datetime) -> str:
         result = "Добрый день"
     else:
         result = "Добрый вечер"
-
+    logger.info(f"Получена часть суток {result}")
     return result

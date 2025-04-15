@@ -1,6 +1,7 @@
 import logging
 import os
 from datetime import datetime
+from typing import Any
 
 from src import loggers
 
@@ -34,3 +35,11 @@ def get_last_digits_card_number(card_number: str) -> str:
         result = card_number
 
     return result
+
+
+def get_total_amount(data: list[dict[str, Any]], date_time: str, date_period: str = "M") -> dict[str, float]:
+    """Получает на вход список транзакций, дату окончания периода, продолжительность периода.
+    Возвращает словари с номерами карт и общими суммами"""
+    pass
+
+

@@ -24,4 +24,4 @@ def test_get_last_digits_card_number(card_number, expected):
 
 
 def test_get_total_amount(list_transactions):
-    assert get_total_amount(list_transactions, "2018-01-30 14:30:56", "M") == {"*7197": -410.06}
+    assert get_total_amount(list_transactions, "2018-01-30 14:30:56", "M") == {"7197": {"Сумма": 410.06, "Кэшбек": 7.0}}

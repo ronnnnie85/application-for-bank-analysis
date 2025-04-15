@@ -38,27 +38,39 @@ def get_last_digits_card_number(card_number: str) -> str:
     return result
 
 
-def get_total_amount(data: list[dict[str, Any]], date_time: str, date_period: str = "M") -> dict[str, float]:
+def get_total_amount(data: list[dict[str, Any]], date_time: str, date_period: str = "M") -> dict[str, dict[str, Any]]:
     """Получает на вход список транзакций, дату окончания периода, продолжительность периода.
     Возвращает словари с номерами карт и общими суммами"""
-    result = defaultdict(float)
+    result = {}
 
     end_date = datetime.fromisoformat(date_time)
     start_date = datetime(end_date.year, end_date.month, 1, 0, 0, 0)
 
     for transaction in data:
-        card_number = transaction.get("Номер карты")
-        if card_number is None:
+        card_number_str = transaction.get("Номер карты")
+        if card_number_str is None:
             continue
+
+        card_number = get_last_digits_card_number(card_number_str)
 
         date_tr_str = transaction.get("Дата операции", "")
         if date_tr_str == "":
             continue
+        if transaction.get("Сумма операции", 0.0) >= 0.0:
+            continue
+
         date_tr = datetime.strptime(date_tr_str, "%d.%m.%Y %H:%M:%S")
         if start_date <= date_tr <= end_date:
-            result[card_number] += transaction.get("Сумма операции", 0.0)
+            if result.get(card_number) is None:
+                result[card_number] = {}
+            if result[card_number].get("Сумма") is None:
+                result[card_number]["Сумма"] = 0.0
+            if result[card_number].get("Кэшбек") is None:
+                result[card_number]["Кэшбек"] = 0.0
+            result[card_number]["Сумма"] += transaction.get("Сумма операции с округлением", 0.0)
+            result[card_number]["Кэшбек"] += float(transaction.get("Бонусы (включая кэшбэк)", 0.0))
 
     logger.info(f"Получен словарь с номерами карт и суммами")
-    return dict(result)
+    return result
 
 

@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from src.utils import get_greetings, get_last_digits_card_number
+from src.utils import get_greetings, get_last_digits_card_number, get_total_amount
 
 
 @pytest.mark.parametrize(
@@ -21,3 +21,7 @@ def test_get_greetings(date, expected):
 @pytest.mark.parametrize("card_number, expected", [("1234567887654321", "4321"), ("234", "234"), ("", "")])
 def test_get_last_digits_card_number(card_number, expected):
     assert get_last_digits_card_number(card_number) == expected
+
+
+def test_get_total_amount(list_transactions):
+    assert get_total_amount(list_transactions, "2018-01-30 14:30:56", "M") == {"*7197": -410.06}

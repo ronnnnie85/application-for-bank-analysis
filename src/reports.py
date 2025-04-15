@@ -17,5 +17,5 @@ def spending_by_weekday(transactions: pd.DataFrame, date: Optional[str] = None) 
 
 def spending_by_workday(transactions: pd.DataFrame, date: Optional[str] = None) -> pd.DataFrame:
     """Функция принимает на вход транзакции, дату опционально.
-        Возвращает средние траты в рабочий и в выходной день за последние три месяца"""
+    Возвращает средние траты в рабочий и в выходной день за последние три месяца"""
     pass

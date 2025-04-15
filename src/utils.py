@@ -23,3 +23,14 @@ def get_greetings(current_date: datetime) -> str:
         result = "Добрый вечер"
     logger.info(f"Получена часть суток {result}")
     return result
+
+
+def get_last_digits_card_number(card_number: str) -> str:
+    """Получает номер карты, возвращает последние 4 цифры"""
+    result = ""
+    if len(card_number) >= 4:
+        result = card_number[-4:]
+    else:
+        result = card_number
+
+    return result

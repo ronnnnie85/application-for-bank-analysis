@@ -1,0 +1,7 @@
+# Глобальные переменные
+CARD_NUMBER_KEY = "Номер карты"
+DATE_TRANSACTIONS_KEY = "Дата операции"
+AMOUNT_ROUND_UP_KEY = "Сумма операции с округлением"
+AMOUNT_KEY = "Сумма операции"
+CASHBACK_KEY = "Бонусы (включая кэшбэк)"
+DATE_FORMAT = "%d.%m.%Y %H:%M:%S"

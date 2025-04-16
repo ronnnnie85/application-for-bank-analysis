@@ -5,6 +5,14 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from src import loggers
+from src.config import (
+    CARD_NUMBER_KEY,
+    DATE_TRANSACTIONS_KEY,
+    AMOUNT_ROUND_UP_KEY,
+    AMOUNT_KEY,
+    CASHBACK_KEY,
+    DATE_FORMAT,
+)
 
 name = os.path.splitext(os.path.basename(__file__))[0]
 file_name = f"{name}.log"
@@ -44,29 +52,27 @@ def get_total_amount(data: list[dict[str, Any]], date_time: str, date_period: st
     result = {}
 
     end_date = datetime.fromisoformat(date_time)
-    start_date = datetime(end_date.year, end_date.month, 1, 0, 0, 0)
+    start_date = get_start_data(end_date, date_period)
+
+    data = get_transactions_by_date_period(data, start_date, end_date)
 
     for transaction in data:
-        card_number_str = transaction.get("Номер карты")
-        date_tr_str = transaction.get("Дата операции")
-        amount_str = transaction.get("Сумма операции с округлением")
-        amount = transaction.get("Сумма операции")
+        card_number_str = transaction.get(CARD_NUMBER_KEY)
+        amount_str = transaction.get(AMOUNT_ROUND_UP_KEY)
+        amount = transaction.get(AMOUNT_KEY)
 
-        if not (card_number_str and date_tr_str and amount_str and amount):
+        if not (card_number_str and amount_str and amount):
             continue
 
         card_number = get_last_digits_card_number(card_number_str)
-        date_tr = datetime.strptime(date_tr_str, "%d.%m.%Y %H:%M:%S")
 
         if amount >= 0.0:
             continue
 
-        if start_date <= date_tr <= end_date:
-
-            if result.get(card_number) is None:
-                result[card_number] = {"Сумма": 0.0, "Кэшбек": 0.0}
-            result[card_number]["Сумма"] += float(amount_str)
-            result[card_number]["Кэшбек"] += float(transaction.get("Бонусы (включая кэшбэк)", 0))
+        if result.get(card_number) is None:
+            result[card_number] = {"Сумма": 0.0, "Кэшбек": 0.0}
+        result[card_number]["Сумма"] += float(amount_str)
+        result[card_number]["Кэшбек"] += float(transaction.get(CASHBACK_KEY, 0))
 
     logger.info("Получен словарь с номерами карт и суммами")
     return result
@@ -89,4 +95,34 @@ def get_start_data(target_date: datetime, date_period: str = "M") -> datetime:
     return result
 
 
-# def top_transactions_by_amount(data: list[dict[str, Any]], date_time: str, date_period: str = "M")
+def get_transactions_by_date_period(
+    data: list[dict[str, Any]], start_date: datetime, end_date: datetime
+) -> list[dict[str, Any]]:
+    """Получает на вход транзакции и даты. Возвращает транзакции за этот период"""
+    result = []
+
+    if start_date > end_date:
+        start_date, end_date = end_date, start_date
+
+    for tx in data:
+        date_tr_str = tx.get(DATE_TRANSACTIONS_KEY)
+        if not date_tr_str:
+            continue
+
+        date_tr = datetime.strptime(date_tr_str, DATE_FORMAT)
+
+        if start_date <= date_tr <= end_date:
+            result.append(tx)
+
+    return result
+
+
+def top_transactions_by_amount(data: list[dict[str, Any]], date_time: str, date_period: str = "M"):
+    """Получает на вход транзакции, дату и диапазон данных. Возвращает топ-5 расходов."""
+    end_date = datetime.fromisoformat(date_time)
+    start_date = get_start_data(end_date, date_period)
+
+    data = get_transactions_by_date_period(data, start_date, end_date)
+    data.sort(key=lambda x: x[AMOUNT_KEY], reverse=False)
+
+    return data[:5]

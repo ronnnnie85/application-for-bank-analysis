@@ -112,7 +112,7 @@ def get_transactions_by_date_period(
 
         if start_date <= date_tr <= end_date:
             result.append(tx)
-
+    logger.info("Получен список транзакций за период")
     return result
 
 
@@ -123,5 +123,5 @@ def top_transactions_by_amount(data: list[dict[str, Any]], date_time: str, date_
 
     data = get_transactions_by_date_period(data, start_date, end_date)
     data.sort(key=lambda x: x[AMOUNT_KEY], reverse=False)
-
+    logger.info("Получен топ-5 расходов")
     return data[:5]

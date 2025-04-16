@@ -1,7 +1,7 @@
 import logging
 import os
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from src import loggers
@@ -68,7 +68,25 @@ def get_total_amount(data: list[dict[str, Any]], date_time: str, date_period: st
             result[card_number]["Сумма"] += float(amount_str)
             result[card_number]["Кэшбек"] += float(transaction.get("Бонусы (включая кэшбэк)", 0))
 
-    logger.info(f"Получен словарь с номерами карт и суммами")
+    logger.info("Получен словарь с номерами карт и суммами")
     return result
 
 
+def get_start_data(target_date: datetime, date_period: str = "M") -> datetime:
+    """Получает на вход дату и диапазон данных. Возвращает начальную дату."""
+    result = target_date
+    if date_period == "M":
+        result = target_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    elif date_period == "Y":
+        result = target_date.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    elif date_period == "W":
+        start_of_week = target_date - timedelta(days=target_date.weekday())
+        result = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+    else:
+        result = datetime.min
+
+    logger.info(f"Получена дата {result}")
+    return result
+
+
+# def top_transactions_by_amount(data: list[dict[str, Any]], date_time: str, date_period: str = "M")

@@ -1,13 +1,15 @@
 from datetime import datetime
+from unittest.mock import patch
 
 import pytest
+import requests
 
 from src.utils import (
     get_greetings,
     get_last_digits_card_number,
     get_total_amount,
     get_start_data,
-    get_transactions_by_date_period, top_transactions_by_amount,
+    get_transactions_by_date_period, top_transactions_by_amount, get_currency_rates,
 )
 
 
@@ -48,43 +50,12 @@ def test_get_start_data(date, period, expected):
     assert get_start_data(date, period) == expected
 
 
-def test_get_transactions_by_date_period(list_transactions):
-    assert get_transactions_by_date_period(list_transactions, datetime(2018, 1, 3), datetime(2018, 1, 10)) == [
-        {
-            "Дата операции": "03.01.2018 15:03:35",
-            "Дата платежа": "04.01.2018",
-            "Номер карты": "*7197",
-            "Статус": "OK",
-            "Сумма операции": -73.06,
-            "Валюта операции": "RUB",
-            "Сумма платежа": -73.06,
-            "Валюта платежа": "RUB",
-            "Кэшбэк": None,
-            "Категория": "Супермаркеты",
-            "MCC": 5499.0,
-            "Описание": "Magazin 25",
-            "Бонусы (включая кэшбэк)": 1,
-            "Округление на инвесткопилку": 0,
-            "Сумма операции с округлением": 73.06,
-        },
-        {
-            "Дата операции": "03.01.2018 14:55:21",
-            "Дата платежа": "05.01.2018",
-            "Номер карты": "*7197",
-            "Статус": "OK",
-            "Сумма операции": -21.0,
-            "Валюта операции": "RUB",
-            "Сумма платежа": -21.0,
-            "Валюта платежа": "RUB",
-            "Кэшбэк": None,
-            "Категория": "Красота",
-            "MCC": 5977.0,
-            "Описание": "OOO Balid",
-            "Бонусы (включая кэшбэк)": 0,
-            "Округление на инвесткопилку": 0,
-            "Сумма операции с округлением": 21.0,
-        },
-    ]
+def test_get_transactions_by_date_period(list_transactions, tr_by_period):
+    assert get_transactions_by_date_period(list_transactions, datetime(2018, 1, 3), datetime(2018, 1, 10)) == tr_by_period
+
+
+def test_get_transactions_by_date_period_rev(tr_by_period):
+    assert get_transactions_by_date_period([{}], datetime(2018, 1, 10), datetime(2018, 1, 3)) == []
 
 
 def test_top_transactions_by_amount(list_transactions):
@@ -157,4 +128,68 @@ def test_top_transactions_by_amount(list_transactions):
             "Округление на инвесткопилку": 0,
             "Сумма операции с округлением": 21.0,
         },
+        {
+            "Дата операции": "23.01.2018 14:55:21",
+            "Дата платежа": "25.01.2018",
+            "Номер карты": "*7197",
+            "Статус": "OK",
+            "Сумма операции": 21.0,
+            "Валюта операции": "RUB",
+            "Сумма платежа": 21.0,
+            "Валюта платежа": "RUB",
+            "Кэшбэк": None,
+            "Категория": "Красота",
+            "MCC": 5977.0,
+            "Описание": "OOO Balid",
+            "Бонусы (включая кэшбэк)": 0,
+            "Округление на инвесткопилку": 0,
+            "Сумма операции с округлением": 21.0,
+        },
     ]
+
+
+@patch("src.utils.json.load")
+@patch("src.utils.open")
+def test_get_currency_rates(mock_open, mock_json, user_settings):
+    with patch("src.utils.requests.get") as mock_get:
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {"rates": {"EUR": 0.014409, "GBP": 0.012201}}
+        assert get_currency_rates(datetime(2020, 1, 1)) == {"EUR": round(1 / 0.014409, 2), "GBP": round(1 / 0.012201, 2)}
+
+
+@patch("src.utils.open")
+def test_get_currency_rates_err_open(mock_open):
+    mock_open.side_effect = FileNotFoundError
+    assert get_currency_rates(datetime(2020, 1, 1)) == {}
+
+
+@patch("src.utils.json.load")
+@patch("src.utils.open")
+def test_get_currency_rates_empty_settings(mock_open, mock_json):
+    mock_json.return_value = {}
+    assert get_currency_rates(datetime(2020, 1, 1)) == {}
+
+
+@patch("src.utils.json.load")
+@patch("src.utils.open")
+def test_get_currency_rates_err_req(mock_open, mock_json, user_settings):
+    with patch("src.utils.requests.get") as mock_get:
+        mock_get.side_effect = requests.exceptions.RequestException
+        assert get_currency_rates(datetime(2020, 1, 1)) == {}
+
+
+@patch("src.utils.json.load")
+@patch("src.utils.open")
+def test_get_currency_rates_err_status_code(mock_open, mock_json, user_settings):
+    with patch("src.utils.requests.get") as mock_get:
+        mock_get.return_value.status_code = 400
+        assert get_currency_rates(datetime(2020, 1, 1)) == {}
+
+
+@patch("src.utils.json.load")
+@patch("src.utils.open")
+def test_get_currency_rates_res_empty(mock_open, mock_json, user_settings):
+    with patch("src.utils.requests.get") as mock_get:
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {}
+        assert get_currency_rates(datetime(2020, 1, 1)) == {}

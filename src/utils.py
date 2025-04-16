@@ -1,7 +1,11 @@
+import json
 import logging
 import os
 from datetime import datetime, timedelta
 from typing import Any
+
+import requests
+from dotenv import load_dotenv
 
 from src import loggers
 from src.config import (
@@ -116,7 +120,7 @@ def get_transactions_by_date_period(
     return result
 
 
-def top_transactions_by_amount(data: list[dict[str, Any]], date_time: str, date_period: str = "M"):
+def top_transactions_by_amount(data: list[dict[str, Any]], date_time: str, date_period: str = "M") -> list[dict]:
     """Получает на вход транзакции, дату и диапазон данных. Возвращает топ-5 расходов."""
     end_date = datetime.fromisoformat(date_time)
     start_date = get_start_data(end_date, date_period)
@@ -125,3 +129,46 @@ def top_transactions_by_amount(data: list[dict[str, Any]], date_time: str, date_
     data.sort(key=lambda x: x[AMOUNT_KEY], reverse=False)
     logger.info("Получен топ-5 расходов")
     return data[:5]
+
+
+def get_currency_rates(date_time: datetime) -> dict[str, float]:
+    """Получает на вход дату и возвращает словарь с валютой"""
+    result = {}
+
+    fin_out_dct_path = os.path.join(os.path.dirname(__file__), "..\\data", "user_settings.json")
+    try:
+        with open(fin_out_dct_path, "r", encoding="utf-8") as f:
+            fin_out_dct = json.load(f)
+    except FileNotFoundError as e:
+        logger.error(f"Ошибка: {e}")
+        return {}
+
+    user_currencies = fin_out_dct.get("user_currencies")
+
+    if user_currencies:
+        url = rf"https://api.apilayer.com/exchangerates_data/{datetime.strftime(date_time, "%Y-%m-%d")}"
+        parameters = {"base": "RUB", "symbols": ",".join(user_currencies)}
+        load_dotenv()
+        api_key = os.getenv("API_KEY_EXCHANGE")
+        headers = {"apikey": api_key}
+
+        try:
+            response = requests.get(url, headers=headers, params=parameters)
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Ошибка: {e}")
+            return {}
+
+        if response.status_code != 200:
+            logger.error(f"Ошибка: Status code: {response.status_code}")
+            return {}
+
+        result = response.json().get("rates")
+        if not result:
+            return {}
+        for key in result.keys():
+            result[key] = round(1 / result[key] if result[key] != 0.0 else 0.0, 2)
+        logger.info("Получен словарь с курсами валюты")
+    else:
+        logger.error("Ошибка: отсутствуют валюты в настройках")
+    return result
+

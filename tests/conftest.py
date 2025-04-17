@@ -138,3 +138,23 @@ def tr_by_period():
             "Сумма операции с округлением": 21.0,
         },
     ]
+
+
+@pytest.fixture
+def stocks_response():
+    return {
+    "Meta Data": {
+        "1. Information": "Daily Prices (open, high, low, close) and Volumes",
+        "2. Symbol": "IBM",
+        "3. Last Refreshed": "2025-04-16",
+        "4. Output Size": "Full size",
+        "5. Time Zone": "US/Eastern"
+    },
+    "Time Series (Daily)": {
+        "2025-04-16": {
+            "1. open": "240.2800",
+            "2. high": "243.2999",
+            "3. low": "235.8900",
+            "4. close": "238.5700",
+            "5. volume": "4870299"
+        }}}

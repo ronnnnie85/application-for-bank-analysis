@@ -10,7 +10,7 @@ from src.utils import (
     get_last_digits_card_number,
     get_total_amount,
     get_start_data,
-    get_transactions_by_date_period, top_transactions_by_amount, get_currency_rates, get_json_file,
+    get_transactions_by_date_period, top_transactions_by_amount, get_currency_rates, get_json_file, get_stock_prices,
 )
 
 
@@ -190,14 +190,14 @@ def test_get_currency_rates_res_empty(mock_file, user_settings):
 
 
 @patch("src.utils.open")
-def test_get_json_file_err_open(mock_open):
-    mock_open.side_effect = FileNotFoundError
+def test_get_json_file_err_open(mock_file):
+    mock_file.side_effect = FileNotFoundError
     assert get_json_file("") == {}
 
 
 @patch("src.utils.json.load")
 @patch("src.utils.open")
-def test_get_json_file_err_decode(mock_open, mock_json):
+def test_get_json_file_err_decode(mock_file, mock_json):
     mock_json.side_effect = json.decoder.JSONDecodeError("", "", 0)
     assert get_json_file("") == {}
 
@@ -205,3 +205,28 @@ def test_get_json_file(user_settings):
     test_data = json.dumps(user_settings)
     with patch("src.utils.open", new_callable=mock_open, read_data=test_data) as mock_file:
         assert get_json_file("") == user_settings
+
+
+@patch("src.utils.get_json_file")
+@patch("src.utils.requests.get")
+def test_get_stock_prices(mock_get, mock_json, user_settings, stocks_response):
+    mock_json.return_value = user_settings
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = stocks_response
+    assert get_stock_prices() == {"AAPL": 238.57, "AMZN": 238.57}
+
+
+@patch("src.utils.get_json_file")
+@patch("src.utils.requests.get")
+def test_get_stock_prices_exception(mock_get, mock_json, user_settings):
+    mock_json.return_value = user_settings
+    mock_get.side_effect = requests.exceptions.RequestException
+    assert get_stock_prices() == {}
+
+
+@patch("src.utils.get_json_file")
+@patch("src.utils.requests.get")
+def test_get_stock_prices_status_code(mock_get, mock_json, user_settings):
+    mock_json.return_value = user_settings
+    mock_get.mock_get.return_value.status_code = 400
+    assert get_stock_prices() == {}

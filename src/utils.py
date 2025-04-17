@@ -3,6 +3,7 @@ import logging
 import os
 from datetime import datetime, timedelta
 from typing import Any
+from wsgiref import headers
 
 import requests
 from dotenv import load_dotenv
@@ -14,7 +15,7 @@ from src.config import (
     AMOUNT_ROUND_UP_KEY,
     AMOUNT_KEY,
     CASHBACK_KEY,
-    DATE_FORMAT,
+    DATE_FORMAT, USER_CURRENCIES, USER_STOCKS,
 )
 
 name = os.path.splitext(os.path.basename(__file__))[0]
@@ -153,7 +154,7 @@ def get_currency_rates(date_time: datetime) -> dict[str, float]:
 
     fin_out_dct_path = os.path.join(os.path.dirname(__file__), "..\\data", "user_settings.json")
 
-    user_currencies = get_json_file(fin_out_dct_path).get("user_currencies")
+    user_currencies = get_json_file(fin_out_dct_path).get(USER_CURRENCIES)
 
     if user_currencies:
         url = rf"https://api.apilayer.com/exchangerates_data/{datetime.strftime(date_time, "%Y-%m-%d")}"
@@ -182,3 +183,36 @@ def get_currency_rates(date_time: datetime) -> dict[str, float]:
         logger.error("Ошибка: отсутствуют валюты в настройках")
     return result
 
+
+def get_stock_prices() -> dict[str, float]:
+    """Возвращает данные по ценам акций на текущую дату"""
+    result = {}
+
+    fin_out_dct_path = os.path.join(os.path.dirname(__file__), "..\\data", "user_settings.json")
+
+    user_stocks = get_json_file(fin_out_dct_path).get(USER_STOCKS)
+
+    if user_stocks:
+        load_dotenv()
+        api_key = os.getenv("API_KEY_STOCK")
+        url = rf"https://www.alphavantage.co/query"
+        parameters = {"function": "TIME_SERIES_DAILY", "symbol": "", "outputsize": "compact", "apikey": api_key}
+
+        for stock in user_stocks:
+            parameters["symbol"] = stock
+            try:
+                response = requests.get(url, params=parameters)
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Ошибка: {e}")
+                return {}
+
+            if response.status_code != 200:
+                logger.error(f"Ошибка: Status code: {response.status_code}")
+                return {}
+
+            dct_stocks = response.json().get("Time Series (Daily)")
+            if dct_stocks:
+                lst_stocks = sorted(dct_stocks, reverse=True)
+                result[stock] = float(dct_stocks[lst_stocks[0]].get("4. close", "0"))
+
+    return result

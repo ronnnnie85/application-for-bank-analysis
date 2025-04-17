@@ -131,19 +131,29 @@ def top_transactions_by_amount(data: list[dict[str, Any]], date_time: str, date_
     return data[:5]
 
 
+def get_json_file(file_path: str) -> dict[str, Any]:
+    """Принимает на вход путь к файлу json, возвращает словарь"""
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            try:
+                result = json.load(f)
+            except json.decoder.JSONDecodeError as e:
+                logger.error(f"Ошибка: {e}")
+                return {}
+    except FileNotFoundError as e:
+        logger.error(f"Ошибка: {e}")
+        return {}
+
+    return result
+
+
 def get_currency_rates(date_time: datetime) -> dict[str, float]:
     """Получает на вход дату и возвращает словарь с валютой"""
     result = {}
 
     fin_out_dct_path = os.path.join(os.path.dirname(__file__), "..\\data", "user_settings.json")
-    try:
-        with open(fin_out_dct_path, "r", encoding="utf-8") as f:
-            fin_out_dct = json.load(f)
-    except FileNotFoundError as e:
-        logger.error(f"Ошибка: {e}")
-        return {}
 
-    user_currencies = fin_out_dct.get("user_currencies")
+    user_currencies = get_json_file(fin_out_dct_path).get("user_currencies")
 
     if user_currencies:
         url = rf"https://api.apilayer.com/exchangerates_data/{datetime.strftime(date_time, "%Y-%m-%d")}"

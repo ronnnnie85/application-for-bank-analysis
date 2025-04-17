@@ -1,5 +1,6 @@
+import json
 from datetime import datetime
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
 
 import pytest
 import requests
@@ -9,7 +10,7 @@ from src.utils import (
     get_last_digits_card_number,
     get_total_amount,
     get_start_data,
-    get_transactions_by_date_period, top_transactions_by_amount, get_currency_rates,
+    get_transactions_by_date_period, top_transactions_by_amount, get_currency_rates, get_json_file,
 )
 
 
@@ -148,48 +149,59 @@ def test_top_transactions_by_amount(list_transactions):
     ]
 
 
-@patch("src.utils.json.load")
-@patch("src.utils.open")
-def test_get_currency_rates(mock_open, mock_json, user_settings):
+@patch("src.utils.get_json_file")
+def test_get_currency_rates(mock_file, user_settings):
+    mock_file.return_value = user_settings
     with patch("src.utils.requests.get") as mock_get:
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {"rates": {"EUR": 0.014409, "GBP": 0.012201}}
         assert get_currency_rates(datetime(2020, 1, 1)) == {"EUR": round(1 / 0.014409, 2), "GBP": round(1 / 0.012201, 2)}
 
 
-@patch("src.utils.open")
-def test_get_currency_rates_err_open(mock_open):
-    mock_open.side_effect = FileNotFoundError
+@patch("src.utils.get_json_file")
+def test_get_currency_rates_empty_settings(mock_file):
+    mock_file.return_value = {}
     assert get_currency_rates(datetime(2020, 1, 1)) == {}
 
 
-@patch("src.utils.json.load")
-@patch("src.utils.open")
-def test_get_currency_rates_empty_settings(mock_open, mock_json):
-    mock_json.return_value = {}
-    assert get_currency_rates(datetime(2020, 1, 1)) == {}
-
-
-@patch("src.utils.json.load")
-@patch("src.utils.open")
-def test_get_currency_rates_err_req(mock_open, mock_json, user_settings):
+@patch("src.utils.get_json_file")
+def test_get_currency_rates_err_req(mock_file, user_settings):
+    mock_file.return_value = user_settings
     with patch("src.utils.requests.get") as mock_get:
         mock_get.side_effect = requests.exceptions.RequestException
         assert get_currency_rates(datetime(2020, 1, 1)) == {}
 
 
-@patch("src.utils.json.load")
-@patch("src.utils.open")
-def test_get_currency_rates_err_status_code(mock_open, mock_json, user_settings):
+@patch("src.utils.get_json_file")
+def test_get_currency_rates_err_status_code(mock_file, user_settings):
+    mock_file.return_value = user_settings
     with patch("src.utils.requests.get") as mock_get:
         mock_get.return_value.status_code = 400
         assert get_currency_rates(datetime(2020, 1, 1)) == {}
 
 
-@patch("src.utils.json.load")
-@patch("src.utils.open")
-def test_get_currency_rates_res_empty(mock_open, mock_json, user_settings):
+@patch("src.utils.get_json_file")
+def test_get_currency_rates_res_empty(mock_file, user_settings):
+    mock_file.return_value = user_settings
     with patch("src.utils.requests.get") as mock_get:
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {}
         assert get_currency_rates(datetime(2020, 1, 1)) == {}
+
+
+@patch("src.utils.open")
+def test_get_json_file_err_open(mock_open):
+    mock_open.side_effect = FileNotFoundError
+    assert get_json_file("") == {}
+
+
+@patch("src.utils.json.load")
+@patch("src.utils.open")
+def test_get_json_file_err_decode(mock_open, mock_json):
+    mock_json.side_effect = json.decoder.JSONDecodeError("", "", 0)
+    assert get_json_file("") == {}
+
+def test_get_json_file(user_settings):
+    test_data = json.dumps(user_settings)
+    with patch("src.utils.open", new_callable=mock_open, read_data=test_data) as mock_file:
+        assert get_json_file("") == user_settings

@@ -168,3 +168,8 @@ def stocks_response():
 @pytest.fixture
 def test_date():
     return datetime(2020, 1, 1)
+
+
+@pytest.fixture
+def test_date_end():
+    return datetime(2020, 10, 1)

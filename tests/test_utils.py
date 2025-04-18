@@ -8,7 +8,7 @@ import requests
 from src.utils import (
     get_greetings,
     get_last_digits_card_number,
-    get_total_amount,
+    get_total_amount_for_card,
     get_start_data,
     get_transactions_by_date_period, top_transactions_by_amount, get_currency_rates, get_json_file, get_stock_prices,
 )
@@ -32,8 +32,8 @@ def test_get_last_digits_card_number(card_number, expected):
     assert get_last_digits_card_number(card_number) == expected
 
 
-def test_get_total_amount(list_transactions):
-    assert get_total_amount(list_transactions, "2018-01-30 14:30:56", "M") == {
+def test_get_total_amount_for_card(list_transactions):
+    assert get_total_amount_for_card(list_transactions, datetime(2018, 1, 1), datetime(2018, 1, 31)) == {
         "7197": {"Сумма": 410.06, "Кэшбек": 7.0}
     }
 
@@ -60,7 +60,7 @@ def test_get_transactions_by_date_period_rev(tr_by_period):
 
 
 def test_top_transactions_by_amount(list_transactions):
-    assert top_transactions_by_amount(list_transactions, "2018-01-30 14:30:56", "M") == [
+    assert top_transactions_by_amount(list_transactions, datetime(2018, 1, 1), datetime(2018, 1, 31)) == [
         {
             "Дата операции": "01.01.2018 12:49:53",
             "Дата платежа": "01.01.2018",

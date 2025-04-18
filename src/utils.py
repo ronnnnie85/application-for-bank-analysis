@@ -14,7 +14,7 @@ from src.config import (
     AMOUNT_ROUND_UP_KEY,
     AMOUNT_KEY,
     CASHBACK_KEY,
-    DATE_FORMAT, USER_CURRENCIES, USER_STOCKS,
+    DATE_FORMAT, USER_CURRENCIES, USER_STOCKS, STATUS_KEY,
 )
 
 name = os.path.splitext(os.path.basename(__file__))[0]
@@ -49,13 +49,13 @@ def get_last_digits_card_number(card_number: str) -> str:
     return result
 
 
-def get_total_amount(data: list[dict[str, Any]], date_time: str, date_period: str = "M") -> dict[str, dict[str, Any]]:
+def get_total_amount_for_card(data: list[dict[str, Any]], start_date: datetime, end_date: datetime) -> dict[str, dict[str, Any]]:
     """Получает на вход список транзакций, дату окончания периода, продолжительность периода.
     Возвращает словари с номерами карт и общими суммами"""
     result = {}
 
-    end_date = datetime.fromisoformat(date_time)
-    start_date = get_start_data(end_date, date_period)
+    # end_date = datetime.fromisoformat(date_time)
+    # start_date = get_start_data(end_date, date_period)
 
     data = get_transactions_by_date_period(data, start_date, end_date)
 
@@ -120,10 +120,10 @@ def get_transactions_by_date_period(
     return result
 
 
-def top_transactions_by_amount(data: list[dict[str, Any]], date_time: str, date_period: str = "M") -> list[dict]:
+def top_transactions_by_amount(data: list[dict[str, Any]], start_date: datetime, end_date: datetime) -> list[dict]:
     """Получает на вход транзакции, дату и диапазон данных. Возвращает топ-5 расходов."""
-    end_date = datetime.fromisoformat(date_time)
-    start_date = get_start_data(end_date, date_period)
+    # end_date = datetime.fromisoformat(date_time)
+    # start_date = get_start_data(end_date, date_period)
 
     data = get_transactions_by_date_period(data, start_date, end_date)
     data.sort(key=lambda x: x[AMOUNT_KEY], reverse=False)
@@ -222,4 +222,8 @@ def get_stock_prices(date_time: datetime) -> dict[str, float]:
     return result
 
 
-print(get_stock_prices(datetime(2025, 4, 18)))
+def get_total_amount(data: list[dict[str, Any]], start_date: datetime, end_date: datetime, expense: bool = True) -> float:
+    """Получает на вход транзакции, начальную, конечную дату, признак расходов, возвращает сумму"""
+    multiplier = 1.0 if expense else -1.0
+    logger.info(f"Получена сумма {"расходов" if expense else "доходов"}")
+    return sum([float(dct[AMOUNT_ROUND_UP_KEY]) for dct in data if dct[DATE_TRANSACTIONS_KEY] * multiplier < 0 and dct[STATUS_KEY] == "OK"])

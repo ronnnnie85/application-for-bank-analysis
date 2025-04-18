@@ -171,5 +171,10 @@ def test_date():
 
 
 @pytest.fixture
+def test_date_start():
+    return datetime(2018, 1, 1)
+
+
+@pytest.fixture
 def test_date_end():
-    return datetime(2020, 10, 1)
+    return datetime(2018, 1, 31)

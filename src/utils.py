@@ -226,4 +226,4 @@ def get_total_amount(data: list[dict[str, Any]], start_date: datetime, end_date:
     """Получает на вход транзакции, начальную, конечную дату, признак расходов, возвращает сумму"""
     multiplier = 1.0 if expense else -1.0
     logger.info(f"Получена сумма {"расходов" if expense else "доходов"}")
-    return sum([float(dct[AMOUNT_ROUND_UP_KEY]) for dct in data if dct[DATE_TRANSACTIONS_KEY] * multiplier < 0 and dct[STATUS_KEY] == "OK"])
+    return sum([float(dct[AMOUNT_ROUND_UP_KEY]) for dct in data if dct[AMOUNT_KEY] * multiplier < 0 and dct[STATUS_KEY] == "OK"])

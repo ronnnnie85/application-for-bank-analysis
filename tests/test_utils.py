@@ -11,6 +11,7 @@ from src.utils import (
     get_total_amount_for_card,
     get_start_data,
     get_transactions_by_date_period, top_transactions_by_amount, get_currency_rates, get_json_file, get_stock_prices,
+    get_total_amount,
 )
 
 
@@ -32,8 +33,8 @@ def test_get_last_digits_card_number(card_number, expected):
     assert get_last_digits_card_number(card_number) == expected
 
 
-def test_get_total_amount_for_card(list_transactions):
-    assert get_total_amount_for_card(list_transactions, datetime(2018, 1, 1), datetime(2018, 1, 31)) == {
+def test_get_total_amount_for_card(list_transactions, test_date_start, test_date_end):
+    assert get_total_amount_for_card(list_transactions, test_date_start, test_date_end) == {
         "7197": {"Сумма": 410.06, "Кэшбек": 7.0}
     }
 
@@ -52,15 +53,15 @@ def test_get_start_data(date, period, expected):
 
 
 def test_get_transactions_by_date_period(list_transactions, tr_by_period):
-    assert get_transactions_by_date_period(list_transactions, datetime(2018, 1, 3), datetime(2018, 1, 10)) == tr_by_period
+    assert get_transactions_by_date_period(list_transactions, datetime(2018, 1, 3), datetime(2018, 1, 5)) == tr_by_period
 
 
-def test_get_transactions_by_date_period_rev(tr_by_period):
-    assert get_transactions_by_date_period([{}], datetime(2018, 1, 10), datetime(2018, 1, 3)) == []
+def test_get_transactions_by_date_period_rev(tr_by_period, test_date_start, test_date_end):
+    assert get_transactions_by_date_period([{}], test_date_end, test_date_start) == []
 
 
-def test_top_transactions_by_amount(list_transactions):
-    assert top_transactions_by_amount(list_transactions, datetime(2018, 1, 1), datetime(2018, 1, 31)) == [
+def test_top_transactions_by_amount(list_transactions, test_date_start, test_date_end):
+    assert top_transactions_by_amount(list_transactions, test_date_start, test_date_end) == [
         {
             "Дата операции": "01.01.2018 12:49:53",
             "Дата платежа": "01.01.2018",
@@ -230,3 +231,11 @@ def test_get_stock_prices_status_code(mock_get, mock_json, user_settings, test_d
     mock_json.return_value = user_settings
     mock_get.mock_get.return_value.status_code = 400
     assert get_stock_prices(test_date) == {}
+
+
+def test_get_total_amount(list_transactions, test_date_start, test_date_end):
+    assert get_total_amount(list_transactions, test_date_start, test_date_end) == 3410.06
+
+
+def test_get_total_amount_pos(list_transactions, test_date_start, test_date_end):
+    assert get_total_amount(list_transactions, test_date_start, test_date_end, False) == 21.0

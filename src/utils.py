@@ -3,7 +3,6 @@ import logging
 import os
 from datetime import datetime, timedelta
 from typing import Any
-from wsgiref import headers
 
 import requests
 from dotenv import load_dotenv
@@ -184,7 +183,7 @@ def get_currency_rates(date_time: datetime) -> dict[str, float]:
     return result
 
 
-def get_stock_prices() -> dict[str, float]:
+def get_stock_prices(date_time: datetime) -> dict[str, float]:
     """Возвращает данные по ценам акций на текущую дату"""
     result = {}
 
@@ -193,10 +192,15 @@ def get_stock_prices() -> dict[str, float]:
     user_stocks = get_json_file(fin_out_dct_path).get(USER_STOCKS)
 
     if user_stocks:
+        end_date = datetime.strftime(date_time.replace(hour=23, minute=59, second=59), "%Y-%m-%d %H:%M:%S")
+
+        start_date = date_time - timedelta(days=10)
+        start_date = datetime.strftime(start_date.replace(hour=0, minute=0, second=0), "%Y-%m-%d %H:%M:%S")
+
         load_dotenv()
         api_key = os.getenv("API_KEY_STOCK")
-        url = rf"https://www.alphavantage.co/query"
-        parameters = {"function": "TIME_SERIES_DAILY", "symbol": "", "outputsize": "compact", "apikey": api_key}
+        url = rf"https://api.twelvedata.com/time_series"
+        parameters = {"interval": "1day", "symbol": "", "start_date": start_date, "end_date": end_date, "apikey": api_key, "dp": "2"}
 
         for stock in user_stocks:
             parameters["symbol"] = stock
@@ -210,9 +214,12 @@ def get_stock_prices() -> dict[str, float]:
                 logger.error(f"Ошибка: Status code: {response.status_code}")
                 return {}
 
-            dct_stocks = response.json().get("Time Series (Daily)")
-            if dct_stocks:
-                lst_stocks = sorted(dct_stocks, reverse=True)
-                result[stock] = float(dct_stocks[lst_stocks[0]].get("4. close", "0"))
+            stocks = response.json().get("values", [])
+            if stocks:
+                # lst_stocks = sorted(dct_stocks.keys(), reverse=True)
+                result[stock] = float(stocks[0].get("close", "0"))
 
     return result
+
+
+print(get_stock_prices(datetime(2025, 4, 18)))

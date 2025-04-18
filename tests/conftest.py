@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 
 
@@ -143,18 +145,26 @@ def tr_by_period():
 @pytest.fixture
 def stocks_response():
     return {
-    "Meta Data": {
-        "1. Information": "Daily Prices (open, high, low, close) and Volumes",
-        "2. Symbol": "IBM",
-        "3. Last Refreshed": "2025-04-16",
-        "4. Output Size": "Full size",
-        "5. Time Zone": "US/Eastern"
-    },
-    "Time Series (Daily)": {
-        "2025-04-16": {
-            "1. open": "240.2800",
-            "2. high": "243.2999",
-            "3. low": "235.8900",
-            "4. close": "238.5700",
-            "5. volume": "4870299"
-        }}}
+	"meta": {
+		"symbol": "AAPL",
+		"interval": "1day",
+		"currency": "USD",
+		"exchange_timezone": "America/New_York",
+		"exchange": "NASDAQ",
+		"mic_code": "XNGS",
+		"type": "Common Stock"
+	},
+	"values": [
+		{
+			"datetime": "2025-04-17",
+			"open": "197.20000",
+			"high": "198.83000",
+			"low": "194.42000",
+			"close": "196.98000",
+			"volume": "51334300"
+		}]}
+
+
+@pytest.fixture
+def test_date():
+    return datetime(2020, 1, 1)

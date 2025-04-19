@@ -4,18 +4,9 @@ import os
 from datetime import datetime, timedelta
 from typing import Any
 
-import requests
-from dotenv import load_dotenv
-
 from src import loggers
-from src.config import (
-    CARD_NUMBER_KEY,
-    DATE_TRANSACTIONS_KEY,
-    AMOUNT_ROUND_UP_KEY,
-    AMOUNT_KEY,
-    CASHBACK_KEY,
-    DATE_FORMAT, USER_CURRENCIES, USER_STOCKS, STATUS_KEY,
-)
+from src.config import (AMOUNT_KEY, AMOUNT_ROUND_UP_KEY, CARD_NUMBER_KEY, CASHBACK_KEY, DATE_FORMAT,
+                        DATE_TRANSACTIONS_KEY, STATUS_KEY)
 
 name = os.path.splitext(os.path.basename(__file__))[0]
 file_name = f"{name}.log"
@@ -49,7 +40,9 @@ def get_last_digits_card_number(card_number: str) -> str:
     return result
 
 
-def get_total_amount_for_card(data: list[dict[str, Any]], start_date: datetime, end_date: datetime) -> dict[str, dict[str, Any]]:
+def get_total_amount_for_card(
+    data: list[dict[str, Any]], start_date: datetime, end_date: datetime
+) -> dict[str, dict[str, Any]]:
     """Получает на вход список транзакций, дату окончания периода, продолжительность периода.
     Возвращает словари с номерами карт и общими суммами"""
     result = {}
@@ -147,11 +140,16 @@ def get_json_file(file_path: str) -> dict[str, Any]:
     return result
 
 
-
-
-
-def get_total_amount(data: list[dict[str, Any]], start_date: datetime, end_date: datetime, expense: bool = True) -> float:
+def get_total_amount(
+    data: list[dict[str, Any]], start_date: datetime, end_date: datetime, expense: bool = True
+) -> float:
     """Получает на вход транзакции, начальную, конечную дату, признак расходов, возвращает сумму"""
     multiplier = 1.0 if expense else -1.0
     logger.info(f"Получена сумма {"расходов" if expense else "доходов"}")
-    return sum([float(dct[AMOUNT_ROUND_UP_KEY]) for dct in data if dct[AMOUNT_KEY ] * multiplier < 0 and dct[STATUS_KEY] == "OK"])
+    return sum(
+        [
+            float(dct[AMOUNT_ROUND_UP_KEY])
+            for dct in data
+            if dct[AMOUNT_KEY] * multiplier < 0 and dct[STATUS_KEY] == "OK"
+        ]
+    )

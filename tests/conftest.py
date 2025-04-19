@@ -96,10 +96,7 @@ def list_transactions():
 
 @pytest.fixture
 def user_settings():
-    return {
-  "user_currencies": ["USD", "EUR"],
-  "user_stocks": ["AAPL", "AMZN"]
-}
+    return {"user_currencies": ["USD", "EUR"], "user_stocks": ["AAPL", "AMZN"]}
 
 
 @pytest.fixture
@@ -145,24 +142,26 @@ def tr_by_period():
 @pytest.fixture
 def stocks_response():
     return {
-	"meta": {
-		"symbol": "AAPL",
-		"interval": "1day",
-		"currency": "USD",
-		"exchange_timezone": "America/New_York",
-		"exchange": "NASDAQ",
-		"mic_code": "XNGS",
-		"type": "Common Stock"
-	},
-	"values": [
-		{
-			"datetime": "2025-04-17",
-			"open": "197.20000",
-			"high": "198.83000",
-			"low": "194.42000",
-			"close": "196.98000",
-			"volume": "51334300"
-		}]}
+        "meta": {
+            "symbol": "AAPL",
+            "interval": "1day",
+            "currency": "USD",
+            "exchange_timezone": "America/New_York",
+            "exchange": "NASDAQ",
+            "mic_code": "XNGS",
+            "type": "Common Stock",
+        },
+        "values": [
+            {
+                "datetime": "2025-04-17",
+                "open": "197.20000",
+                "high": "198.83000",
+                "low": "194.42000",
+                "close": "196.98000",
+                "volume": "51334300",
+            }
+        ],
+    }
 
 
 @pytest.fixture

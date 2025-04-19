@@ -67,7 +67,14 @@ def get_stock_prices(date_time: datetime) -> dict[str, float]:
         load_dotenv()
         api_key = os.getenv("API_KEY_STOCK")
         url = rf"https://api.twelvedata.com/time_series"
-        parameters = {"interval": "1day", "symbol": "", "start_date": start_date, "end_date": end_date, "apikey": api_key, "dp": "2"}
+        parameters = {
+            "interval": "1day",
+            "symbol": "",
+            "start_date": start_date,
+            "end_date": end_date,
+            "apikey": api_key,
+            "dp": "2",
+        }
 
         for stock in user_stocks:
             parameters["symbol"] = stock

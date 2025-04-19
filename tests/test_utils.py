@@ -1,18 +1,13 @@
 import json
 from datetime import datetime
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
 import pytest
 import requests
 
-from src.utils import (
-    get_greetings,
-    get_last_digits_card_number,
-    get_total_amount_for_card,
-    get_start_data,
-    get_transactions_by_date_period, top_transactions_by_amount, get_currency_rates, get_json_file, get_stock_prices,
-    get_total_amount,
-)
+from src.utils import (get_currency_rates, get_greetings, get_json_file, get_last_digits_card_number, get_start_data,
+                       get_stock_prices, get_total_amount, get_total_amount_for_card, get_transactions_by_date_period,
+                       top_transactions_by_amount)
 
 
 @pytest.mark.parametrize(
@@ -53,7 +48,9 @@ def test_get_start_data(date, period, expected):
 
 
 def test_get_transactions_by_date_period(list_transactions, tr_by_period):
-    assert get_transactions_by_date_period(list_transactions, datetime(2018, 1, 3), datetime(2018, 1, 5)) == tr_by_period
+    assert (
+        get_transactions_by_date_period(list_transactions, datetime(2018, 1, 3), datetime(2018, 1, 5)) == tr_by_period
+    )
 
 
 def test_get_transactions_by_date_period_rev(tr_by_period, test_date_start, test_date_end):
@@ -162,12 +159,11 @@ def test_get_json_file_err_decode(mock_file, mock_json):
     mock_json.side_effect = json.decoder.JSONDecodeError("", "", 0)
     assert get_json_file("") == {}
 
+
 def test_get_json_file(user_settings):
     test_data = json.dumps(user_settings)
     with patch("src.utils.open", new_callable=mock_open, read_data=test_data) as mock_file:
         assert get_json_file("") == user_settings
-
-
 
 
 def test_get_total_amount(list_transactions, test_date_start, test_date_end):

@@ -111,12 +111,12 @@ def get_transactions_by_date_period(
     return result
 
 
-def top_transactions_by_amount(data: list[dict[str, Any]], start_date: datetime, end_date: datetime) -> list[dict]:
+def top_transactions_by_amount(data: list[dict[str, Any]]) -> list[dict]:
     """Получает на вход транзакции, дату и диапазон данных. Возвращает топ-5 расходов."""
     # end_date = datetime.fromisoformat(date_time)
     # start_date = get_start_data(end_date, date_period)
 
-    data = get_transactions_by_date_period(data, start_date, end_date)
+    # data = get_transactions_by_date_period(data, start_date, end_date)
     data.sort(key=lambda x: x[AMOUNT_KEY], reverse=False)
     logger.info("Получен топ-5 расходов")
     return data[:5]

@@ -54,8 +54,8 @@ def test_get_transactions_by_date_period_rev(tr_by_period, test_date_start, test
     assert get_transactions_by_date_period([{}], test_date_end, test_date_start) == []
 
 
-def test_top_transactions_by_amount(list_transactions, test_date_start, test_date_end):
-    assert top_transactions_by_amount(list_transactions, test_date_start, test_date_end) == [
+def test_top_transactions_by_amount(list_transactions):
+    assert top_transactions_by_amount(list_transactions) == [
         {
             "Дата операции": "01.01.2018 12:49:53",
             "Дата платежа": "01.01.2018",

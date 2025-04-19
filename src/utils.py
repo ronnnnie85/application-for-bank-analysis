@@ -1,11 +1,12 @@
 import json
 import logging
 import os
+from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Any
 
 from src import loggers
-from src.config import (AMOUNT_KEY, AMOUNT_ROUND_UP_KEY, CARD_NUMBER_KEY, CASHBACK_KEY, DATE_FORMAT,
+from src.config import (AMOUNT_KEY, AMOUNT_ROUND_UP_KEY, CARD_NUMBER_KEY, CASHBACK_KEY, CATEGORY_KEY, DATE_FORMAT,
                         DATE_TRANSACTIONS_KEY, STATUS_KEY)
 
 name = os.path.splitext(os.path.basename(__file__))[0]
@@ -40,10 +41,13 @@ def get_last_digits_card_number(card_number: str) -> str:
     return result
 
 
-def get_total_amount_for_card(data: list[dict[str, Any]], expense: bool = True, status: str = "OK") -> dict[str, dict[str, Any]]:
-    """Получает на вход список транзакций, дату окончания периода, продолжительность периода.
+def get_total_amount_for_card(
+    data: list[dict[str, Any]], expense: bool = True, status: str = "OK"
+) -> dict[str, dict[str, Any]]:
+    """Получает на вход список транзакций, признак расходов, статус.
     Возвращает словари с номерами карт и общими суммами"""
     result = {}
+    operations = defaultdict(float)
 
     for transaction in data:
         card_number_str = transaction.get(CARD_NUMBER_KEY, "")
@@ -106,12 +110,17 @@ def get_transactions_by_date_period(
     return result
 
 
-def top_transactions_by_amount(data: list[dict[str, Any]], status: str = "OK") -> list[dict]:
-    """Получает на вход транзакции, дату и диапазон данных. Возвращает топ-5 расходов."""
+def top_transactions_by_amount(
+    data: list[dict[str, Any]], expense: bool = True, status: str = "OK", num_top_cats: int = 0
+) -> list[dict]:
+    """Получает на вход транзакции, признак расходов, статус, кол-во топов. Возвращает топ движений."""
     data = [tx for tx in data if tx.get(STATUS_KEY, "") == status]
-    data.sort(key=lambda x: x.get(AMOUNT_KEY, 0), reverse=False)
-    logger.info("Получен топ-5 расходов")
-    return data[:5]
+    data.sort(key=lambda x: x.get(AMOUNT_KEY, 0), reverse=not expense)
+    logger.info(
+        f"Получен топ{"-" + str(num_top_cats) if num_top_cats != 0 else ""} {"расходов" if expense else "доходов"}"
+    )
+
+    return data[:num_top_cats]
 
 
 def get_json_file(file_path: str) -> dict[str, Any]:
@@ -130,10 +139,8 @@ def get_json_file(file_path: str) -> dict[str, Any]:
     return result
 
 
-def get_total_amount(
-    data: list[dict[str, Any]], expense: bool = True, status: str = "OK"
-) -> float:
-    """Получает на вход транзакции, признак расходов, возвращает сумму"""
+def get_total_amount(data: list[dict[str, Any]], expense: bool = True, status: str = "OK") -> float:
+    """Получает на вход транзакции, признак расходов, статус, возвращает сумму"""
     logger.info(f"Получена сумма {"расходов" if expense else "доходов"}")
     return sum(
         [
@@ -143,3 +150,44 @@ def get_total_amount(
             and dct.get(STATUS_KEY, "") == status
         ]
     )
+
+
+def get_amount_for_categories(
+    data: list[dict[str, Any]], expense: bool = True, status: str = "OK", num_top_cats: int = 0
+) -> dict[str, Any]:
+    """Получает на вход транзакции, признак расходов, статус, кол-во топов, возвращает словарь по категориям"""
+    result = {}
+
+    operations = defaultdict(float)
+    for transaction in data:
+        category_str = transaction.get(CATEGORY_KEY, "")
+        amount_str = transaction.get(AMOUNT_ROUND_UP_KEY, "")
+        amount = transaction.get(AMOUNT_KEY, "")
+
+        if not (category_str and amount_str and amount):
+            continue
+        if (amount if expense else -amount) >= 0.0 or transaction.get(STATUS_KEY, "") != status:
+            continue
+
+        operations[category_str] += float(amount_str)
+
+    sorted_operations = sorted(operations.items(), key=lambda x: x[1], reverse=True)
+
+    if not num_top_cats:
+        result = {key: value for key, value in sorted_operations}
+    else:
+        result = {key: value for key, value in sorted_operations[:num_top_cats]}
+
+        if len(sorted_operations) > num_top_cats:
+            other = sum(value for key, value in sorted_operations[num_top_cats:])
+            result["Остальное"] = other
+    logger.info(
+        f"Получен топ{"-" + str(num_top_cats) if num_top_cats != 0 else ""} "
+        f"{"расходов" if expense else "доходов"} по категориям"
+    )
+    return result
+
+
+def get_transactions_for_categories(data: list[dict[str, Any]], categories: set) -> list[dict[str, Any]]:
+    """Получает на вход транзакции, список категорий, возвращает список транзакций"""
+    return [tx for tx in data if tx.get(CATEGORY_KEY, "") in categories]

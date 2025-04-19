@@ -119,7 +119,6 @@ def top_transactions_by_amount(
     logger.info(
         f"Получен топ{"-" + str(num_top_cats) if num_top_cats != 0 else ""} {"расходов" if expense else "доходов"}"
     )
-
     return data[:num_top_cats]
 
 
@@ -135,7 +134,7 @@ def get_json_file(file_path: str) -> dict[str, Any]:
     except FileNotFoundError as e:
         logger.error(f"Ошибка: {e}")
         return {}
-
+    logger.info(f"Получен словарь из файла {file_path}")
     return result
 
 
@@ -190,4 +189,5 @@ def get_amount_for_categories(
 
 def get_transactions_for_categories(data: list[dict[str, Any]], categories: set) -> list[dict[str, Any]]:
     """Получает на вход транзакции, список категорий, возвращает список транзакций"""
+    logger.info("Получен список транзакций по категориям")
     return [tx for tx in data if tx.get(CATEGORY_KEY, "") in categories]

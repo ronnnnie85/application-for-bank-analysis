@@ -40,9 +40,7 @@ def get_last_digits_card_number(card_number: str) -> str:
     return result
 
 
-def get_total_amount_for_card(
-    data: list[dict[str, Any]], start_date: datetime, end_date: datetime
-) -> dict[str, dict[str, Any]]:
+def get_total_amount_for_card(data: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     """Получает на вход список транзакций, дату окончания периода, продолжительность периода.
     Возвращает словари с номерами карт и общими суммами"""
     result = {}
@@ -50,7 +48,7 @@ def get_total_amount_for_card(
     # end_date = datetime.fromisoformat(date_time)
     # start_date = get_start_data(end_date, date_period)
 
-    data = get_transactions_by_date_period(data, start_date, end_date)
+    # data = get_transactions_by_date_period(data, start_date, end_date)
 
     for transaction in data:
         card_number_str = transaction.get(CARD_NUMBER_KEY)

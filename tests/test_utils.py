@@ -5,9 +5,8 @@ from unittest.mock import mock_open, patch
 import pytest
 import requests
 
-from src.utils import (get_currency_rates, get_greetings, get_json_file, get_last_digits_card_number, get_start_data,
-                       get_stock_prices, get_total_amount, get_total_amount_for_card, get_transactions_by_date_period,
-                       top_transactions_by_amount)
+from src.utils import (get_greetings, get_json_file, get_last_digits_card_number, get_start_data, get_total_amount,
+                       get_total_amount_for_card, get_transactions_by_date_period, top_transactions_by_amount)
 
 
 @pytest.mark.parametrize(
@@ -28,10 +27,8 @@ def test_get_last_digits_card_number(card_number, expected):
     assert get_last_digits_card_number(card_number) == expected
 
 
-def test_get_total_amount_for_card(list_transactions, test_date_start, test_date_end):
-    assert get_total_amount_for_card(list_transactions, test_date_start, test_date_end) == {
-        "7197": {"Сумма": 410.06, "Кэшбек": 7.0}
-    }
+def test_get_total_amount_for_card(list_transactions):
+    assert get_total_amount_for_card(list_transactions) == {"7197": {"Сумма": 410.06, "Кэшбек": 7.0}}
 
 
 @pytest.mark.parametrize(

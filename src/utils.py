@@ -40,7 +40,7 @@ def get_last_digits_card_number(card_number: str) -> str:
     return result
 
 
-def get_total_amount_for_card(data: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+def get_total_amount_for_card(data: list[dict[str, Any]], expense: bool = True, status: str = "OK") -> dict[str, dict[str, Any]]:
     """Получает на вход список транзакций, дату окончания периода, продолжительность периода.
     Возвращает словари с номерами карт и общими суммами"""
     result = {}
@@ -60,7 +60,7 @@ def get_total_amount_for_card(data: list[dict[str, Any]]) -> dict[str, dict[str,
 
         card_number = get_last_digits_card_number(card_number_str)
 
-        if amount >= 0.0:
+        if (amount if expense else -amount) >= 0.0 or transaction.get(STATUS_KEY) != status:
             continue
 
         if result.get(card_number) is None:
@@ -111,12 +111,13 @@ def get_transactions_by_date_period(
     return result
 
 
-def top_transactions_by_amount(data: list[dict[str, Any]]) -> list[dict]:
+def top_transactions_by_amount(data: list[dict[str, Any]], status: str = "OK") -> list[dict]:
     """Получает на вход транзакции, дату и диапазон данных. Возвращает топ-5 расходов."""
     # end_date = datetime.fromisoformat(date_time)
     # start_date = get_start_data(end_date, date_period)
 
     # data = get_transactions_by_date_period(data, start_date, end_date)
+    data = [tx for tx in data if tx[STATUS_KEY] == status]
     data.sort(key=lambda x: x[AMOUNT_KEY], reverse=False)
     logger.info("Получен топ-5 расходов")
     return data[:5]
@@ -139,15 +140,14 @@ def get_json_file(file_path: str) -> dict[str, Any]:
 
 
 def get_total_amount(
-    data: list[dict[str, Any]], start_date: datetime, end_date: datetime, expense: bool = True
+    data: list[dict[str, Any]], expense: bool = True, status: str = "OK"
 ) -> float:
-    """Получает на вход транзакции, начальную, конечную дату, признак расходов, возвращает сумму"""
-    multiplier = 1.0 if expense else -1.0
+    """Получает на вход транзакции, признак расходов, возвращает сумму"""
     logger.info(f"Получена сумма {"расходов" if expense else "доходов"}")
     return sum(
         [
             float(dct[AMOUNT_ROUND_UP_KEY])
             for dct in data
-            if dct[AMOUNT_KEY] * multiplier < 0 and dct[STATUS_KEY] == "OK"
+            if (dct[AMOUNT_KEY] if expense else -dct[AMOUNT_KEY]) < 0 and dct[STATUS_KEY] == status
         ]
     )

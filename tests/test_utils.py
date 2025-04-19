@@ -164,8 +164,8 @@ def test_get_json_file(user_settings):
 
 
 def test_get_total_amount(list_transactions, test_date_start, test_date_end):
-    assert get_total_amount(list_transactions, test_date_start, test_date_end) == 3410.06
+    assert get_total_amount(list_transactions) == 3410.06
 
 
 def test_get_total_amount_pos(list_transactions, test_date_start, test_date_end):
-    assert get_total_amount(list_transactions, test_date_start, test_date_end, False) == 21.0
+    assert get_total_amount(list_transactions, False) == 21.0

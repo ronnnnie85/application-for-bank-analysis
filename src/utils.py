@@ -45,22 +45,17 @@ def get_total_amount_for_card(data: list[dict[str, Any]], expense: bool = True, 
     Возвращает словари с номерами карт и общими суммами"""
     result = {}
 
-    # end_date = datetime.fromisoformat(date_time)
-    # start_date = get_start_data(end_date, date_period)
-
-    # data = get_transactions_by_date_period(data, start_date, end_date)
-
     for transaction in data:
-        card_number_str = transaction.get(CARD_NUMBER_KEY)
-        amount_str = transaction.get(AMOUNT_ROUND_UP_KEY)
-        amount = transaction.get(AMOUNT_KEY)
+        card_number_str = transaction.get(CARD_NUMBER_KEY, "")
+        amount_str = transaction.get(AMOUNT_ROUND_UP_KEY, "")
+        amount = transaction.get(AMOUNT_KEY, "")
 
         if not (card_number_str and amount_str and amount):
             continue
 
         card_number = get_last_digits_card_number(card_number_str)
 
-        if (amount if expense else -amount) >= 0.0 or transaction.get(STATUS_KEY) != status:
+        if (amount if expense else -amount) >= 0.0 or transaction.get(STATUS_KEY, "") != status:
             continue
 
         if result.get(card_number) is None:
@@ -99,7 +94,7 @@ def get_transactions_by_date_period(
         start_date, end_date = end_date, start_date
 
     for tx in data:
-        date_tr_str = tx.get(DATE_TRANSACTIONS_KEY)
+        date_tr_str = tx.get(DATE_TRANSACTIONS_KEY, "")
         if not date_tr_str:
             continue
 
@@ -113,12 +108,8 @@ def get_transactions_by_date_period(
 
 def top_transactions_by_amount(data: list[dict[str, Any]], status: str = "OK") -> list[dict]:
     """Получает на вход транзакции, дату и диапазон данных. Возвращает топ-5 расходов."""
-    # end_date = datetime.fromisoformat(date_time)
-    # start_date = get_start_data(end_date, date_period)
-
-    # data = get_transactions_by_date_period(data, start_date, end_date)
-    data = [tx for tx in data if tx[STATUS_KEY] == status]
-    data.sort(key=lambda x: x[AMOUNT_KEY], reverse=False)
+    data = [tx for tx in data if tx.get(STATUS_KEY, "") == status]
+    data.sort(key=lambda x: x.get(AMOUNT_KEY, 0), reverse=False)
     logger.info("Получен топ-5 расходов")
     return data[:5]
 
@@ -146,8 +137,9 @@ def get_total_amount(
     logger.info(f"Получена сумма {"расходов" if expense else "доходов"}")
     return sum(
         [
-            float(dct[AMOUNT_ROUND_UP_KEY])
+            float(dct.get(AMOUNT_ROUND_UP_KEY, 0))
             for dct in data
-            if (dct[AMOUNT_KEY] if expense else -dct[AMOUNT_KEY]) < 0 and dct[STATUS_KEY] == status
+            if (dct.get(AMOUNT_KEY, 0) if expense else -dct.get(AMOUNT_KEY, 0)) < 0
+            and dct.get(STATUS_KEY, "") == status
         ]
     )

@@ -6,7 +6,8 @@ import requests
 from dotenv import load_dotenv
 
 from src import loggers
-from src.config import USER_CURRENCIES, USER_STOCKS
+from src.config import USER_CURRENCIES, USER_STOCKS, API_EXCHANGE_URL, API_STOCKS_URL, FILE_USER_SETTINGS, \
+    DATA_FOLDER_NAME
 from src.utils import get_json_file
 
 name = os.path.splitext(os.path.basename(__file__))[0]
@@ -18,12 +19,12 @@ def get_currency_rates(date_time: datetime) -> dict[str, float]:
     """Получает на вход дату и возвращает словарь с валютой"""
     result = {}
 
-    fin_out_dct_path = os.path.join(os.path.dirname(__file__), "..\\data", "user_settings.json")
+    fin_out_dct_path = os.path.join(os.path.dirname(__file__), f"..\\{DATA_FOLDER_NAME}", FILE_USER_SETTINGS)
 
     user_currencies = get_json_file(fin_out_dct_path).get(USER_CURRENCIES)
 
     if user_currencies:
-        url = rf"https://api.apilayer.com/exchangerates_data/{datetime.strftime(date_time, "%Y-%m-%d")}"
+        url = f"{API_EXCHANGE_URL}{datetime.strftime(date_time, "%Y-%m-%d")}"
         parameters = {"base": "RUB", "symbols": ",".join(user_currencies)}
         load_dotenv()
         api_key = os.getenv("API_KEY_EXCHANGE")
@@ -54,7 +55,7 @@ def get_stock_prices(date_time: datetime) -> dict[str, float]:
     """Возвращает данные по ценам акций на дату"""
     result = {}
 
-    fin_out_dct_path = os.path.join(os.path.dirname(__file__), "..\\data", "user_settings.json")
+    fin_out_dct_path = os.path.join(os.path.dirname(__file__), f"..\\{DATA_FOLDER_NAME}", FILE_USER_SETTINGS)
 
     user_stocks = get_json_file(fin_out_dct_path).get(USER_STOCKS)
 
@@ -66,7 +67,7 @@ def get_stock_prices(date_time: datetime) -> dict[str, float]:
 
         load_dotenv()
         api_key = os.getenv("API_KEY_STOCK")
-        url = rf"https://api.twelvedata.com/time_series"
+        url = API_STOCKS_URL
         parameters = {
             "interval": "1day",
             "symbol": "",

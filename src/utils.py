@@ -72,7 +72,7 @@ def get_total_amount_for_card(data: list[dict[str, Any]]) -> dict[str, dict[str,
     return result
 
 
-def get_start_data(target_date: datetime, date_period: str = "M") -> datetime:
+def get_start_date(target_date: datetime, date_period: str = "M") -> datetime:
     """Получает на вход дату и диапазон данных. Возвращает начальную дату."""
     result = target_date
     if date_period == "M":

@@ -5,7 +5,7 @@ from unittest.mock import mock_open, patch
 import pytest
 import requests
 
-from src.utils import (get_greetings, get_json_file, get_last_digits_card_number, get_start_data, get_total_amount,
+from src.utils import (get_greetings, get_json_file, get_last_digits_card_number, get_start_date, get_total_amount,
                        get_total_amount_for_card, get_transactions_by_date_period, top_transactions_by_amount)
 
 
@@ -40,8 +40,8 @@ def test_get_total_amount_for_card(list_transactions):
         (datetime(2024, 1, 31), "ALL", datetime(1, 1, 1)),
     ],
 )
-def test_get_start_data(date, period, expected):
-    assert get_start_data(date, period) == expected
+def test_get_start_date(date, period, expected):
+    assert get_start_date(date, period) == expected
 
 
 def test_get_transactions_by_date_period(list_transactions, tr_by_period):

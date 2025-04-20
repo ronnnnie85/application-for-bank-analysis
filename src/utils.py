@@ -6,8 +6,16 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from src import loggers
-from src.config import (AMOUNT_KEY, AMOUNT_ROUND_UP_KEY, CARD_NUMBER_KEY, CASHBACK_KEY, CATEGORY_KEY, DATE_FORMAT,
-                        DATE_TRANSACTIONS_KEY, STATUS_KEY)
+from src.config import (
+    AMOUNT_KEY,
+    AMOUNT_ROUND_UP_KEY,
+    CARD_NUMBER_KEY,
+    CASHBACK_KEY,
+    CATEGORY_KEY,
+    DATE_FORMAT,
+    DATE_TRANSACTIONS_KEY,
+    STATUS_KEY,
+)
 
 name = os.path.splitext(os.path.basename(__file__))[0]
 file_name = f"{name}.log"
@@ -42,7 +50,7 @@ def get_last_digits_card_number(card_number: str) -> str:
 
 
 def get_total_amount_for_card(
-    data: list[dict[str, Any]], expense: bool = True, status: str = "OK"
+    data: list[dict[str, Any]], expense: bool = True, status: str = "OK", except_categories: set[str] | None = None
 ) -> dict[str, dict[str, Any]]:
     """Получает на вход список транзакций, признак расходов, статус.
     Возвращает словари с номерами карт и общими суммами"""
@@ -59,6 +67,9 @@ def get_total_amount_for_card(
         card_number = get_last_digits_card_number(card_number_str)
 
         if (amount if expense else -amount) >= 0.0 or transaction.get(STATUS_KEY, "") != status:
+            continue
+
+        if except_categories and transaction.get(CATEGORY_KEY, "") in except_categories:
             continue
 
         if result.get(card_number) is None:
@@ -110,10 +121,19 @@ def get_transactions_by_date_period(
 
 
 def top_transactions_by_amount(
-    data: list[dict[str, Any]], expense: bool = True, status: str = "OK", num_top_cats: int = 0
+    data: list[dict[str, Any]],
+    expense: bool = True,
+    status: str = "OK",
+    num_top_cats: int = 0,
+    except_categories: set[str] | None = None,
 ) -> list[dict]:
     """Получает на вход транзакции, признак расходов, статус, кол-во топов. Возвращает топ движений."""
-    data = [tx for tx in data if tx.get(STATUS_KEY, "") == status]
+    data = [
+        tx
+        for tx in data
+        if tx.get(STATUS_KEY, "") == status
+        and (tx.get(CATEGORY_KEY, "") not in except_categories if except_categories else True)
+    ]
     data.sort(key=lambda x: x.get(AMOUNT_KEY, 0), reverse=not expense)
     logger.info(
         f"Получен топ{"-" + str(num_top_cats) if num_top_cats != 0 else ""} {"расходов" if expense else "доходов"}"
@@ -138,7 +158,9 @@ def get_json_file(file_path: str) -> dict[str, Any]:
     return result
 
 
-def get_total_amount(data: list[dict[str, Any]], expense: bool = True, status: str = "OK") -> float:
+def get_total_amount(
+    data: list[dict[str, Any]], expense: bool = True, status: str = "OK", except_categories: set[str] | None = None
+) -> float:
     """Получает на вход транзакции, признак расходов, статус, возвращает сумму"""
     logger.info(f"Получена сумма {"расходов" if expense else "доходов"}")
     return sum(
@@ -147,12 +169,17 @@ def get_total_amount(data: list[dict[str, Any]], expense: bool = True, status: s
             for dct in data
             if (dct.get(AMOUNT_KEY, 0) if expense else -dct.get(AMOUNT_KEY, 0)) < 0
             and dct.get(STATUS_KEY, "") == status
+            and (dct.get(CATEGORY_KEY, "") not in except_categories if except_categories else True)
         ]
     )
 
 
 def get_amount_for_categories(
-    data: list[dict[str, Any]], expense: bool = True, status: str = "OK", num_top_cats: int = 0
+    data: list[dict[str, Any]],
+    expense: bool = True,
+    status: str = "OK",
+    num_top_cats: int = 0,
+    except_categories: set[str] | None = None,
 ) -> dict[str, Any]:
     """Получает на вход транзакции, признак расходов, статус, кол-во топов, возвращает словарь по категориям"""
     result = {}
@@ -166,6 +193,8 @@ def get_amount_for_categories(
         if not (category_str and amount_str and amount):
             continue
         if (amount if expense else -amount) >= 0.0 or transaction.get(STATUS_KEY, "") != status:
+            continue
+        if except_categories and transaction.get(CATEGORY_KEY, "") in except_categories:
             continue
 
         operations[category_str] += float(amount_str)
@@ -202,3 +231,9 @@ def get_cashback_categories(data: list[dict[str, Any]], percent_cashback: float)
     result = get_amount_for_categories(data_cashback)
     logger.info("Получены словари кэшбека по категориям")
     return result
+
+
+def get_invest_amount(data: list[dict[str, Any]], limit: int) -> float:
+    """Получает на вход список транзакций и лимит округления, возвращает сумму"""
+    lst = [(tx.get(AMOUNT_ROUND_UP_KEY, 0) // limit + 1) * limit - tx.get(AMOUNT_ROUND_UP_KEY, 0) for tx in data]
+    return sum(lst)

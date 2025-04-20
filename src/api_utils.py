@@ -6,14 +6,8 @@ import requests
 from dotenv import load_dotenv
 
 from src import loggers
-from src.config import (
-    API_EXCHANGE_URL,
-    API_STOCKS_URL,
-    DATA_FOLDER_NAME,
-    FILE_USER_SETTINGS,
-    USER_CURRENCIES,
-    USER_STOCKS,
-)
+from src.config import (API_EXCHANGE_URL, API_STOCKS_URL, DATA_FOLDER_NAME, FILE_USER_SETTINGS, USER_CURRENCIES,
+                        USER_STOCKS)
 from src.utils import get_json_file
 
 name = os.path.splitext(os.path.basename(__file__))[0]

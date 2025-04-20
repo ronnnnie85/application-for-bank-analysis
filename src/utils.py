@@ -7,16 +7,8 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from src import loggers
-from src.config import (
-    AMOUNT_KEY,
-    AMOUNT_ROUND_UP_KEY,
-    CARD_NUMBER_KEY,
-    CASHBACK_KEY,
-    CATEGORY_KEY,
-    DATE_FORMAT,
-    DATE_TRANSACTIONS_KEY,
-    STATUS_KEY,
-)
+from src.config import (AMOUNT_KEY, AMOUNT_ROUND_UP_KEY, CARD_NUMBER_KEY, CASHBACK_KEY, CATEGORY_KEY, DATE_FORMAT,
+                        DATE_TRANSACTIONS_KEY, STATUS_KEY)
 
 name = os.path.splitext(os.path.basename(__file__))[0]
 file_name = f"{name}.log"
@@ -237,13 +229,11 @@ def get_cashback_categories(data: list[dict[str, Any]], percent_cashback: float)
 def get_invest_amount(data: list[dict[str, Any]], limit: int) -> float:
     """Получает на вход список транзакций и лимит округления, возвращает сумму"""
     lst = [(tx.get(AMOUNT_ROUND_UP_KEY, 0) // limit + 1) * limit - tx.get(AMOUNT_ROUND_UP_KEY, 0) for tx in data]
-    return sum(lst)
+    return float(sum(lst))
 
 
 def get_simple_search(data: list[dict[str, Any]], keyword: str, search_keys: set) -> list[dict[str, Any]]:
     """Получает на вход список транзакций, запрос и множество ключей поиска, возвращает список транзакций"""
     pattern = re.compile(re.escape(keyword), re.IGNORECASE)
-    result = [tx for tx in data
-        if any(pattern.search(tx[key]) for key in search_keys)]
-
+    result = [tx for tx in data if any(pattern.search(tx[key]) for key in search_keys)]
     return result

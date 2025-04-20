@@ -4,19 +4,10 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from src.utils import (
-    get_amount_for_categories,
-    get_cashback_categories,
-    get_greetings,
-    get_json_file,
-    get_last_digits_card_number,
-    get_start_date,
-    get_total_amount,
-    get_total_amount_for_card,
-    get_transactions_by_date_period,
-    get_transactions_for_categories,
-    top_transactions_by_amount, get_invest_amount, get_simple_search,
-)
+from src.utils import (get_amount_for_categories, get_cashback_categories, get_greetings, get_invest_amount,
+                       get_json_file, get_last_digits_card_number, get_simple_search, get_start_date, get_total_amount,
+                       get_total_amount_for_card, get_transactions_by_date_period, get_transactions_for_categories,
+                       top_transactions_by_amount)
 
 
 @pytest.mark.parametrize(
@@ -38,7 +29,9 @@ def test_get_last_digits_card_number(card_number, expected):
 
 
 def test_get_total_amount_for_card(list_transactions):
-    assert get_total_amount_for_card(list_transactions, except_categories={"Переводы", "Супермаркеты"}) == {"7197": {"Сумма": 337.0, "Кэшбек": 6.0}}
+    assert get_total_amount_for_card(list_transactions, except_categories={"Переводы", "Супермаркеты"}) == {
+        "7197": {"Сумма": 337.0, "Кэшбек": 6.0}
+    }
 
 
 @pytest.mark.parametrize(
@@ -278,7 +271,8 @@ def test_get_invest_amount(tr_by_period):
 
 
 def test_get_simple_search(list_transactions):
-    assert get_simple_search(list_transactions, "перевод", {"Категория"}) == [{
+    assert get_simple_search(list_transactions, "перевод", {"Категория"}) == [
+        {
             "Дата операции": "01.01.2018 12:49:53",
             "Дата платежа": "01.01.2018",
             "Номер карты": None,
@@ -294,4 +288,5 @@ def test_get_simple_search(list_transactions):
             "Бонусы (включая кэшбэк)": 0,
             "Округление на инвесткопилку": 0,
             "Сумма операции с округлением": 3000.0,
-        }]
+        }
+    ]

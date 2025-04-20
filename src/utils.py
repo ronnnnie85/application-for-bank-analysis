@@ -232,7 +232,7 @@ def get_invest_amount(data: list[dict[str, Any]], limit: int) -> float:
     return float(sum(lst))
 
 
-def get_simple_search(data: list[dict[str, Any]], keyword: str, search_keys: set) -> list[dict[str, Any]]:
+def get_search_by_keyword(data: list[dict[str, Any]], keyword: str, search_keys: set) -> list[dict[str, Any]]:
     """Получает на вход список транзакций, запрос и множество ключей поиска, возвращает список транзакций"""
     pattern = re.compile(re.escape(keyword), re.IGNORECASE)
     result = [tx for tx in data if any(pattern.search(tx[key]) for key in search_keys)]

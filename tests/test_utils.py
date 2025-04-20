@@ -5,9 +5,9 @@ from unittest.mock import mock_open, patch
 import pytest
 
 from src.utils import (get_amount_for_categories, get_cashback_categories, get_greetings, get_invest_amount,
-                       get_json_file, get_last_digits_card_number, get_simple_search, get_start_date, get_total_amount,
+                       get_json_file, get_last_digits_card_number, get_start_date, get_total_amount,
                        get_total_amount_for_card, get_transactions_by_date_period, get_transactions_for_categories,
-                       top_transactions_by_amount)
+                       top_transactions_by_amount, get_search_by_keyword)
 
 
 @pytest.mark.parametrize(
@@ -270,8 +270,8 @@ def test_get_invest_amount(tr_by_period):
     assert get_invest_amount(tr_by_period, 50) == 55.94
 
 
-def test_get_simple_search(list_transactions):
-    assert get_simple_search(list_transactions, "перевод", {"Категория"}) == [
+def test_get_search_by_keyword(list_transactions):
+    assert get_search_by_keyword(list_transactions, "перевод", {"Категория"}) == [
         {
             "Дата операции": "01.01.2018 12:49:53",
             "Дата платежа": "01.01.2018",

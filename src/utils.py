@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Any
@@ -64,12 +65,12 @@ def get_total_amount_for_card(
         if not (card_number_str and amount_str and amount):
             continue
 
+        if except_categories and transaction.get(CATEGORY_KEY, "") in except_categories:
+            continue
+
         card_number = get_last_digits_card_number(card_number_str)
 
         if (amount if expense else -amount) >= 0.0 or transaction.get(STATUS_KEY, "") != status:
-            continue
-
-        if except_categories and transaction.get(CATEGORY_KEY, "") in except_categories:
             continue
 
         if result.get(card_number) is None:
@@ -237,3 +238,12 @@ def get_invest_amount(data: list[dict[str, Any]], limit: int) -> float:
     """Получает на вход список транзакций и лимит округления, возвращает сумму"""
     lst = [(tx.get(AMOUNT_ROUND_UP_KEY, 0) // limit + 1) * limit - tx.get(AMOUNT_ROUND_UP_KEY, 0) for tx in data]
     return sum(lst)
+
+
+def get_simple_search(data: list[dict[str, Any]], keyword: str, search_keys: set) -> list[dict[str, Any]]:
+    """Получает на вход список транзакций, запрос и множество ключей поиска, возвращает список транзакций"""
+    pattern = re.compile(re.escape(keyword), re.IGNORECASE)
+    result = [tx for tx in data
+        if any(pattern.search(tx[key]) for key in search_keys)]
+
+    return result

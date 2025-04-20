@@ -15,7 +15,7 @@ from src.utils import (
     get_total_amount_for_card,
     get_transactions_by_date_period,
     get_transactions_for_categories,
-    top_transactions_by_amount,
+    top_transactions_by_amount, get_invest_amount, get_simple_search,
 )
 
 
@@ -38,7 +38,7 @@ def test_get_last_digits_card_number(card_number, expected):
 
 
 def test_get_total_amount_for_card(list_transactions):
-    assert get_total_amount_for_card(list_transactions) == {"7197": {"Сумма": 410.06, "Кэшбек": 7.0}}
+    assert get_total_amount_for_card(list_transactions, except_categories={"Переводы", "Супермаркеты"}) == {"7197": {"Сумма": 337.0, "Кэшбек": 6.0}}
 
 
 @pytest.mark.parametrize(
@@ -182,10 +182,9 @@ def test_get_total_amount_pos(list_transactions):
 
 
 def test_get_amount_for_categories(list_transactions):
-    assert get_amount_for_categories(list_transactions, num_top_cats=2) == {
+    assert get_amount_for_categories(list_transactions, num_top_cats=1, except_categories={"Супермаркеты"}) == {
         "Переводы": 3000.0,
-        "Красота": 337.0,
-        "Остальное": 73.06,
+        "Остальное": 337,
     }
 
 
@@ -272,3 +271,27 @@ def test_get_cashback_categories(list_transactions):
         "Красота": 16,
         "Супермаркеты": 3,
     }
+
+
+def test_get_invest_amount(tr_by_period):
+    assert get_invest_amount(tr_by_period, 50) == 55.94
+
+
+def test_get_simple_search(list_transactions):
+    assert get_simple_search(list_transactions, "перевод", {"Категория"}) == [{
+            "Дата операции": "01.01.2018 12:49:53",
+            "Дата платежа": "01.01.2018",
+            "Номер карты": None,
+            "Статус": "OK",
+            "Сумма операции": -3000.0,
+            "Валюта операции": "RUB",
+            "Сумма платежа": -3000.0,
+            "Валюта платежа": "RUB",
+            "Кэшбэк": None,
+            "Категория": "Переводы",
+            "MCC": None,
+            "Описание": "Линзомат ТЦ Юность",
+            "Бонусы (включая кэшбэк)": 0,
+            "Округление на инвесткопилку": 0,
+            "Сумма операции с округлением": 3000.0,
+        }]

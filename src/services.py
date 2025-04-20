@@ -1,7 +1,7 @@
 from typing import Any
 
 
-def get_beneficial_categories(data: list[dict[str, Any]], year: str, month: str) -> str:
+def get_beneficial_categories(data: list[dict[str, Any]], year: str, month: str, percent_cashback: float = 5.0) -> str:
     """На вход функции поступают данные для анализа, год и месяц. На выходе — JSON с анализом,
     сколько на каждой категории можно заработать кешбэка в указанном месяце года."""
     pass

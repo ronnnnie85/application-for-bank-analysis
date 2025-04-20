@@ -191,3 +191,14 @@ def get_transactions_for_categories(data: list[dict[str, Any]], categories: set)
     """Получает на вход транзакции, список категорий, возвращает список транзакций"""
     logger.info("Получен список транзакций по категориям")
     return [tx for tx in data if tx.get(CATEGORY_KEY, "") in categories]
+
+
+def get_cashback_categories(data: list[dict[str, Any]], percent_cashback: float) -> dict[str, Any]:
+    """Получает на вход список транзакций возвращает возможный кэшбек по категориям"""
+    data_cashback = [
+        {**tx, AMOUNT_ROUND_UP_KEY: int(tx.get(AMOUNT_ROUND_UP_KEY, 0.0) * percent_cashback / 100)} for tx in data
+    ]
+
+    result = get_amount_for_categories(data_cashback)
+    logger.info("Получены словари кэшбека по категориям")
+    return result

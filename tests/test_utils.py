@@ -4,9 +4,9 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from src.utils import (get_amount_for_categories, get_greetings, get_json_file, get_last_digits_card_number,
-                       get_start_date, get_total_amount, get_total_amount_for_card, get_transactions_by_date_period,
-                       get_transactions_for_categories, top_transactions_by_amount)
+from src.utils import (get_amount_for_categories, get_cashback_categories, get_greetings, get_json_file,
+                       get_last_digits_card_number, get_start_date, get_total_amount, get_total_amount_for_card,
+                       get_transactions_by_date_period, get_transactions_for_categories, top_transactions_by_amount)
 
 
 @pytest.mark.parametrize(
@@ -254,3 +254,11 @@ def test_get_transactions_for_categories(list_transactions):
             "Сумма операции с округлением": 21.0,
         },
     ]
+
+
+def test_get_cashback_categories(list_transactions):
+    assert get_cashback_categories(list_transactions, percent_cashback=5.0) == {
+        "Переводы": 150,
+        "Красота": 16,
+        "Супермаркеты": 3,
+    }

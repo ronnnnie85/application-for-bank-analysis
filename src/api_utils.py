@@ -62,8 +62,8 @@ def get_stock_prices(date_time: datetime) -> dict[str, float]:
     if user_stocks:
         end_date = datetime.strftime(date_time.replace(hour=23, minute=59, second=59), "%Y-%m-%d %H:%M:%S")
 
-        start_date = date_time - timedelta(days=10)
-        start_date = datetime.strftime(start_date.replace(hour=0, minute=0, second=0), "%Y-%m-%d %H:%M:%S")
+        start_date_dt = date_time - timedelta(days=10)
+        start_date = datetime.strftime(start_date_dt.replace(hour=0, minute=0, second=0), "%Y-%m-%d %H:%M:%S")
 
         load_dotenv()
         api_key = os.getenv("API_KEY_STOCK")
@@ -78,7 +78,7 @@ def get_stock_prices(date_time: datetime) -> dict[str, float]:
         }
 
         for stock in user_stocks:
-            parameters["symbol"] = stock
+            parameters["symbol"] = str(stock)
             try:
                 response = requests.get(url, params=parameters)
             except requests.exceptions.RequestException as e:

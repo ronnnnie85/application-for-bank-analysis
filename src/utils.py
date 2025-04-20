@@ -46,8 +46,7 @@ def get_total_amount_for_card(
 ) -> dict[str, dict[str, Any]]:
     """Получает на вход список транзакций, признак расходов, статус.
     Возвращает словари с номерами карт и общими суммами"""
-    result = {}
-    operations = defaultdict(float)
+    result: dict[str, dict[str, Any]] = {}
 
     for transaction in data:
         card_number_str = transaction.get(CARD_NUMBER_KEY, "")
@@ -119,11 +118,12 @@ def top_transactions_by_amount(
     logger.info(
         f"Получен топ{"-" + str(num_top_cats) if num_top_cats != 0 else ""} {"расходов" if expense else "доходов"}"
     )
-    return data[:num_top_cats]
+    return data[:num_top_cats] if num_top_cats != 0 else data
 
 
 def get_json_file(file_path: str) -> dict[str, Any]:
     """Принимает на вход путь к файлу json, возвращает словарь"""
+    result: dict[str, Any] = {}
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             try:
@@ -157,7 +157,7 @@ def get_amount_for_categories(
     """Получает на вход транзакции, признак расходов, статус, кол-во топов, возвращает словарь по категориям"""
     result = {}
 
-    operations = defaultdict(float)
+    operations: defaultdict = defaultdict(float)
     for transaction in data:
         category_str = transaction.get(CATEGORY_KEY, "")
         amount_str = transaction.get(AMOUNT_ROUND_UP_KEY, "")

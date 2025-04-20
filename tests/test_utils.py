@@ -3,10 +3,10 @@ from datetime import datetime
 from unittest.mock import mock_open, patch
 
 import pytest
-import requests
 
-from src.utils import (get_greetings, get_json_file, get_last_digits_card_number, get_start_date, get_total_amount,
-                       get_total_amount_for_card, get_transactions_by_date_period, top_transactions_by_amount)
+from src.utils import (get_amount_for_categories, get_greetings, get_json_file, get_last_digits_card_number,
+                       get_start_date, get_total_amount, get_total_amount_for_card, get_transactions_by_date_period,
+                       get_transactions_for_categories, top_transactions_by_amount)
 
 
 @pytest.mark.parametrize(
@@ -159,13 +159,98 @@ def test_get_json_file_err_decode(mock_file, mock_json):
 
 def test_get_json_file(user_settings):
     test_data = json.dumps(user_settings)
-    with patch("src.utils.open", new_callable=mock_open, read_data=test_data) as mock_file:
+    with patch("src.utils.open", new_callable=mock_open, read_data=test_data):
         assert get_json_file("") == user_settings
 
 
-def test_get_total_amount(list_transactions, test_date_start, test_date_end):
+def test_get_total_amount(list_transactions):
     assert get_total_amount(list_transactions) == 3410.06
 
 
-def test_get_total_amount_pos(list_transactions, test_date_start, test_date_end):
+def test_get_total_amount_pos(list_transactions):
     assert get_total_amount(list_transactions, False) == 21.0
+
+
+def test_get_amount_for_categories(list_transactions):
+    assert get_amount_for_categories(list_transactions, num_top_cats=2) == {
+        "Переводы": 3000.0,
+        "Красота": 337.0,
+        "Остальное": 73.06,
+    }
+
+
+def test_get_amount_for_categories_without_cats(list_transactions_without_cats):
+    assert get_amount_for_categories(list_transactions_without_cats) == {"Переводы": 3000.0, "Супермаркеты": 73.06}
+
+
+def test_get_transactions_for_categories(list_transactions):
+    assert get_transactions_for_categories(list_transactions, {"Красота", "Переводы"}) == [
+        {
+            "Дата операции": "01.01.2018 20:27:51",
+            "Дата платежа": "04.01.2018",
+            "Номер карты": "*7197",
+            "Статус": "OK",
+            "Сумма операции": -316.0,
+            "Валюта операции": "RUB",
+            "Сумма платежа": -316.0,
+            "Валюта платежа": "RUB",
+            "Кэшбэк": None,
+            "Категория": "Красота",
+            "MCC": 5977.0,
+            "Описание": "OOO Balid",
+            "Бонусы (включая кэшбэк)": 6,
+            "Округление на инвесткопилку": 0,
+            "Сумма операции с округлением": 316.0,
+        },
+        {
+            "Дата операции": "01.01.2018 12:49:53",
+            "Дата платежа": "01.01.2018",
+            "Номер карты": None,
+            "Статус": "OK",
+            "Сумма операции": -3000.0,
+            "Валюта операции": "RUB",
+            "Сумма платежа": -3000.0,
+            "Валюта платежа": "RUB",
+            "Кэшбэк": None,
+            "Категория": "Переводы",
+            "MCC": None,
+            "Описание": "Линзомат ТЦ Юность",
+            "Бонусы (включая кэшбэк)": 0,
+            "Округление на инвесткопилку": 0,
+            "Сумма операции с округлением": 3000.0,
+        },
+        {
+            "Дата операции": "03.01.2018 14:55:21",
+            "Дата платежа": "05.01.2018",
+            "Номер карты": "*7197",
+            "Статус": "OK",
+            "Сумма операции": -21.0,
+            "Валюта операции": "RUB",
+            "Сумма платежа": -21.0,
+            "Валюта платежа": "RUB",
+            "Кэшбэк": None,
+            "Категория": "Красота",
+            "MCC": 5977.0,
+            "Описание": "OOO Balid",
+            "Бонусы (включая кэшбэк)": 0,
+            "Округление на инвесткопилку": 0,
+            "Сумма операции с округлением": 21.0,
+        },
+        {
+            "Дата операции": "23.01.2018 14:55:21",
+            "Дата платежа": "25.01.2018",
+            "Номер карты": "*7197",
+            "Статус": "OK",
+            "Сумма операции": 21.0,
+            "Валюта операции": "RUB",
+            "Сумма платежа": 21.0,
+            "Валюта платежа": "RUB",
+            "Кэшбэк": None,
+            "Категория": "Красота",
+            "MCC": 5977.0,
+            "Описание": "OOO Balid",
+            "Бонусы (включая кэшбэк)": 0,
+            "Округление на инвесткопилку": 0,
+            "Сумма операции с округлением": 21.0,
+        },
+    ]

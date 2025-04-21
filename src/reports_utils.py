@@ -4,7 +4,7 @@ from typing import Optional
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 
-from src.config import DATE_TRANSACTIONS_KEY, CATEGORY_KEY, AMOUNT_KEY
+from src.config import AMOUNT_KEY, CATEGORY_KEY, DATE_TRANSACTIONS_KEY
 
 
 def get_dataframe_spending(

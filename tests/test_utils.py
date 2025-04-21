@@ -4,21 +4,10 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from src.utils import (
-    get_amount_for_categories,
-    get_cashback_categories,
-    get_greetings,
-    get_invest_amount,
-    get_json_file,
-    get_last_digits_card_number,
-    get_start_date,
-    get_total_amount,
-    get_total_amount_for_card,
-    get_transactions_by_date_period,
-    get_transactions_for_categories,
-    top_transactions_by_amount,
-    get_search_by_keyword,
-)
+from src.utils import (get_amount_for_categories, get_cashback_categories, get_greetings, get_invest_amount,
+                       get_json_file, get_last_digits_card_number, get_search_by_keyword, get_start_date,
+                       get_total_amount, get_total_amount_for_card, get_transactions_by_date_period,
+                       get_transactions_for_categories, top_transactions_by_amount)
 
 
 @pytest.mark.parametrize(

@@ -1,18 +1,18 @@
 import functools
 import json
 import os
-from typing import Optional
+from typing import Any, Callable, Iterable, Optional
 
 import pandas as pd
 
-from src.config import DATE_TRANSACTIONS_KEY, CATEGORY_KEY, AMOUNT_KEY, REPORTS_FOLDER_NAME, RUSSIAN_DAYS
-from src.utils import get_dataframe_spending, get_dates_by_month
+from src.config import AMOUNT_KEY, CATEGORY_KEY, DATE_TRANSACTIONS_KEY, REPORTS_FOLDER_NAME, RUSSIAN_DAYS
+from src.reports_utils import get_dataframe_spending, get_dates_by_month
 
 
-def log_reports_to_file(file_name: str = "report.json"):
-    def decorator(func):
+def log_reports_to_file(file_name: str = "report.json") -> Callable:
+    def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Iterable, **kwargs: Iterable) -> Any:
             df = func(*args, **kwargs)
             dct = df[AMOUNT_KEY].to_dict()
 
@@ -57,15 +57,16 @@ def spending_by_weekday(transactions: pd.DataFrame, date: Optional[str] = None) 
 @log_reports_to_file("spending_by_workday.json")
 def spending_by_workday(transactions: pd.DataFrame, date: Optional[str] = None) -> pd.DataFrame:
     """Функция принимает на вход транзакции, дату опционально.
+
     Возвращает средние траты в рабочий и в выходной день за последние три месяца"""
     start_date, end_date = get_dates_by_month(date)
 
     filtered = get_dataframe_spending(transactions, start_date, end_date)
     filtered["day_of_week"] = filtered[DATE_TRANSACTIONS_KEY].dt.weekday
-    filtered["type_day"] = filtered["day_of_week"].map(lambda x: "Рабочий день" if x in range(0, 5) else "Выходной день")
+    filtered["type_day"] = filtered["day_of_week"].map(
+        lambda x: "Рабочий день" if x in range(0, 5) else "Выходной день"
+    )
     result = filtered.groupby("type_day").agg({AMOUNT_KEY: "sum"}).round(2)
     result = result.sort_values("type_day", ascending=False)
 
     return result
-
-

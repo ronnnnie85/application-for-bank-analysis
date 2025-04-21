@@ -1,11 +1,9 @@
 import functools
 import json
 import os
-from datetime import datetime
 from typing import Optional
 
 import pandas as pd
-from dateutil.relativedelta import relativedelta
 
 from src.config import DATE_TRANSACTIONS_KEY, CATEGORY_KEY, AMOUNT_KEY, REPORTS_FOLDER_NAME, RUSSIAN_DAYS
 from src.utils import get_dataframe_spending, get_dates_by_month
@@ -63,7 +61,11 @@ def spending_by_workday(transactions: pd.DataFrame, date: Optional[str] = None) 
     start_date, end_date = get_dates_by_month(date)
 
     filtered = get_dataframe_spending(transactions, start_date, end_date)
+    filtered["day_of_week"] = filtered[DATE_TRANSACTIONS_KEY].dt.weekday
+    filtered["type_day"] = filtered["day_of_week"].map(lambda x: "Рабочий день" if x in range(0, 5) else "Выходной день")
+    result = filtered.groupby("type_day").agg({AMOUNT_KEY: "sum"}).round(2)
+    result = result.sort_values("type_day", ascending=False)
+
+    return result
 
 
-
-spending_by_weekday(pd.read_excel("../data/operations.xlsx"), "2021-06-01")

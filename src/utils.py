@@ -248,30 +248,3 @@ def get_search_by_keyword(data: list[dict[str, Any]], keyword: str, search_keys:
     pattern = re.compile(re.escape(keyword), re.IGNORECASE)
     result = [tx for tx in data if any(pattern.search(tx[key]) for key in search_keys)]
     return result
-
-
-def get_dataframe_spending(
-    df: pd.DataFrame, start_date: datetime, end_date: datetime, category: str = "", expense: bool = True
-) -> pd.DataFrame:
-    """Принимает на вход dataframe, начальную и конечную даты, опционально категорию и признак расходов.
-    Возвращает фильрованый список"""
-    df[DATE_TRANSACTIONS_KEY] = pd.to_datetime(df[DATE_TRANSACTIONS_KEY], dayfirst=True)
-
-    filter_data = (
-        (df[CATEGORY_KEY] == category if category else True)
-        & (df[DATE_TRANSACTIONS_KEY] >= start_date)
-        & (df[DATE_TRANSACTIONS_KEY] <= end_date)
-        & (df[AMOUNT_KEY] < 0 if expense else df[AMOUNT_KEY] > 0)
-    )
-
-    filtered = df.loc[filter_data].copy()
-    filtered[AMOUNT_KEY] = filtered[AMOUNT_KEY].abs()
-
-    return filtered
-
-
-def get_dates_by_month(date: Optional[str], months: int = 3) -> tuple[datetime, datetime]:
-    end_date = datetime.now() if date is None else datetime.strptime(date, "%Y-%m-%d")
-    start_date = end_date - relativedelta(months=months)
-
-    return start_date, end_date

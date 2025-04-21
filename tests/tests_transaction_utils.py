@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from src.transaction_utils import (get_transactions_by_date_period, get_transactions_for_categories,
-                                   top_transactions_by_amount)
+from src.transaction_utils import get_transactions_by_date_period, top_transactions_by_amount, \
+    get_transactions_for_categories
 
 
 def test_get_transactions_by_date_period(list_transactions, tr_by_period):

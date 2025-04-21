@@ -7,8 +7,9 @@ from typing import Any
 from dateutil.relativedelta import relativedelta
 
 from src import loggers
-from src.services_utils import get_cashback_categories, get_invest_amount
-from src.transaction_utils import get_transactions_by_date_period
+from src.config import CATEGORY_KEY, DESCRIPTION_KEY
+from src.services_utils import get_cashback_categories, get_invest_amount, get_search_by_keyword
+from src.transaction_utils import get_transactions_by_date_period, get_transactions_for_categories
 
 name = os.path.splitext(os.path.basename(__file__))[0]
 file_name = f"{name}.log"
@@ -24,7 +25,14 @@ def get_beneficial_categories(data: list[dict[str, Any]], year: str, month: str,
     filtered_data = get_transactions_by_date_period(data, start_date, end_date)
     cashback_data = get_cashback_categories(filtered_data, percent_cashback)
     logger.info("Получен json с категориями кэшбека")
-    return json.dumps(cashback_data)
+
+    try:
+        result = json.dumps(cashback_data)
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        result = json.dumps({})
+
+    return result
 
 
 def investment_bank(month: str, transactions: list[dict[str, Any]], limit: int) -> float:
@@ -39,18 +47,44 @@ def investment_bank(month: str, transactions: list[dict[str, Any]], limit: int) 
 
 def simple_search(transactions: list[dict[str, Any]], keyword: str) -> str:
     """На вход функции поступает список транзакция и ключевое слова.
-    На выходе JSON-ответ со всеми транзакциями, содержащими запрос в описании или категории.
-    """
-    pass
+    На выходе JSON-ответ со всеми транзакциями, содержащими запрос в описании или категории."""
+    data = get_search_by_keyword(transactions, keyword, {CATEGORY_KEY, DESCRIPTION_KEY})
+
+    try:
+        result = json.dumps(data)
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        result = json.dumps({})
+    logger.info("Найдены транзакции")
+    return result
 
 
 def search_by_phone(transactions: list[dict[str, Any]]) -> str:
     """Функция возвращает JSON со всеми транзакциями, содержащими в описании мобильные номера."""
-    pass
+    keyword = r"\+7\s\d{3}\s\d{3}\-\d{2}\-\d{2}"
+    data = get_search_by_keyword(transactions, keyword, {DESCRIPTION_KEY})
+
+    try:
+        result = json.dumps(data)
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        result = json.dumps({})
+    logger.info("Найдены транзакции")
+    return result
 
 
 def search_person_transfer(transactions: list[dict[str, Any]]) -> str:
     """Функция возвращает JSON со всеми транзакциями, которые относятся к переводам физлицам.
     Категория такой транзакции — Переводы, а в описании есть имя и первая буква фамилии с точкой.
     """
-    pass
+    keyword = r"[А-ЯЁ][а-яё]+ [А-ЯЁ]\."
+    cat_data = get_transactions_for_categories(transactions, {CATEGORY_KEY})
+    data = get_search_by_keyword(cat_data, keyword, {DESCRIPTION_KEY})
+
+    try:
+        result = json.dumps(data)
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        result = json.dumps({})
+    logger.info("Найдены транзакции")
+    return result

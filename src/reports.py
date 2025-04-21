@@ -23,9 +23,12 @@ def log_reports_to_file(file_name: str = "report.json") -> Callable:
             dct = df[AMOUNT_KEY].to_dict()
 
             file_path = os.path.join(os.path.dirname(__file__), f"../{REPORTS_FOLDER_NAME}", file_name)
-            with open(file_path, "w", encoding="utf-8") as f:
-                json.dump(dct, f, ensure_ascii=False, indent=4)
-
+            try:
+                with open(file_path, "w", encoding="utf-8") as f:
+                    json.dump(dct, f, ensure_ascii=False, indent=4)
+            except (FileNotFoundError, TypeError) as e:
+                logger.error(f"Ошибка: {e}")
+            logger.info(f"Сохранен файл {file_path}")
             return df
 
         return wrapper
@@ -41,7 +44,7 @@ def spending_by_category(transactions: pd.DataFrame, category: str, date: Option
 
     filtered = get_dataframe_spending(transactions, start_date, end_date, category=category)
     result = filtered.groupby(CATEGORY_KEY).agg({AMOUNT_KEY: "sum"}).round(2)
-
+    logger.info("Получен dataframe с расходами по категориям")
     return result
 
 
@@ -56,7 +59,7 @@ def spending_by_weekday(transactions: pd.DataFrame, date: Optional[str] = None) 
     filtered["day_name_ru"] = filtered["day_of_week"].map((lambda x: RUSSIAN_DAYS[x]))
     result = filtered.groupby("day_name_ru").agg({AMOUNT_KEY: "sum", "day_of_week": "first"}).round(2)
     result = result.sort_values("day_of_week")
-
+    logger.info("Получен dataframe с расходами по дням недели")
     return result
 
 
@@ -74,5 +77,5 @@ def spending_by_workday(transactions: pd.DataFrame, date: Optional[str] = None) 
     )
     result = filtered.groupby("type_day").agg({AMOUNT_KEY: "sum"}).round(2)
     result = result.sort_values("type_day", ascending=False)
-
+    logger.info("Получен dataframe с расходами по типам дней")
     return result

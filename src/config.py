@@ -15,4 +15,12 @@ FILE_USER_SETTINGS = "user_settings.json"
 FILE_OPERATIONS = "operations.xlsx"
 DATA_FOLDER_NAME = "data"
 REPORTS_FOLDER_NAME = "reports"
-RUSSIAN_DAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
+RUSSIAN_DAYS = [
+    "Понедельник",
+    "Вторник",
+    "Среда",
+    "Четверг",
+    "Пятница",
+    "Суббота",
+    "Воскресенье",
+]

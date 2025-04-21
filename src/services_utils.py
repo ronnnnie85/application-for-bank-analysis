@@ -15,7 +15,11 @@ logger = loggers.create_logger(name, file_name, logging.DEBUG)
 def get_cashback_categories(data: list[dict[str, Any]], percent_cashback: float) -> dict[str, Any]:
     """Получает на вход список транзакций возвращает возможный кэшбек по категориям"""
     data_cashback = [
-        {**tx, AMOUNT_ROUND_UP_KEY: int(tx.get(AMOUNT_ROUND_UP_KEY, 0.0) * percent_cashback / 100)} for tx in data
+        {
+            **tx,
+            AMOUNT_ROUND_UP_KEY: int(tx.get(AMOUNT_ROUND_UP_KEY, 0.0) * percent_cashback / 100),
+        }
+        for tx in data
     ]
 
     result = get_amount_for_categories(data_cashback)

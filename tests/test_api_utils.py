@@ -11,7 +11,10 @@ def test_get_currency_rates(mock_file, user_settings, test_date):
     with patch("src.api_utils.requests.get") as mock_get:
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {"rates": {"EUR": 0.014409, "GBP": 0.012201}}
-        assert get_currency_rates(test_date) == {"EUR": round(1 / 0.014409, 2), "GBP": round(1 / 0.012201, 2)}
+        assert get_currency_rates(test_date) == {
+            "EUR": round(1 / 0.014409, 2),
+            "GBP": round(1 / 0.012201, 2),
+        }
 
 
 @patch("src.api_utils.get_json_file")

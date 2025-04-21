@@ -91,7 +91,6 @@ def get_stock_prices(date_time: datetime) -> dict[str, float]:
 
             stocks = response.json().get("values", [])
             if stocks:
-                # lst_stocks = sorted(dct_stocks.keys(), reverse=True)
                 result[stock] = float(stocks[0].get("close", "0"))
-
+    logger.info("Получены фильтрованные котировки")
     return result

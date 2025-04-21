@@ -41,7 +41,10 @@ def get_last_digits_card_number(card_number: str) -> str:
 
 
 def get_total_amount_for_card(
-    data: list[dict[str, Any]], expense: bool = True, status: str = "OK", except_categories: set[str] | None = None
+    data: list[dict[str, Any]],
+    expense: bool = True,
+    status: str = "OK",
+    except_categories: set[str] | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Получает на вход список транзакций, признак расходов, статус.
     Возвращает словари с номерами карт и общими суммами"""
@@ -59,7 +62,7 @@ def get_total_amount_for_card(
             continue
 
         card_number = get_last_digits_card_number(card_number_str)
-
+        amount = float(amount)
         if (amount if expense else -amount) >= 0.0 or transaction.get(STATUS_KEY, "") != status:
             continue
 
@@ -107,7 +110,10 @@ def get_json_file(file_path: str) -> dict[str, Any]:
 
 
 def get_total_amount(
-    data: list[dict[str, Any]], expense: bool = True, status: str = "OK", except_categories: set[str] | None = None
+    data: list[dict[str, Any]],
+    expense: bool = True,
+    status: str = "OK",
+    except_categories: set[str] | None = None,
 ) -> float:
     """Получает на вход транзакции, признак расходов, статус, возвращает сумму"""
     logger.info(f"Получена сумма {"расходов" if expense else "доходов"}")
@@ -140,6 +146,7 @@ def get_amount_for_categories(
 
         if not (category_str and amount_str and amount):
             continue
+        amount = float(amount)
         if (amount if expense else -amount) >= 0.0 or transaction.get(STATUS_KEY, "") != status:
             continue
         if except_categories and transaction.get(CATEGORY_KEY, "") in except_categories:

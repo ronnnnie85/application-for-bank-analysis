@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import pandas as pd
 import pytest
 
 
@@ -267,3 +268,8 @@ def test_date_start():
 @pytest.fixture
 def test_date_end():
     return datetime(2018, 1, 31)
+
+
+@pytest.fixture
+def dataframe_tr(list_transactions):
+    return pd.DataFrame(list_transactions)

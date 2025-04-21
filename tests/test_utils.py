@@ -80,4 +80,7 @@ def test_get_amount_for_categories(list_transactions):
 
 
 def test_get_amount_for_categories_without_cats(list_transactions_without_cats):
-    assert get_amount_for_categories(list_transactions_without_cats) == {"Переводы": 3000.0, "Супермаркеты": 73.06}
+    assert get_amount_for_categories(list_transactions_without_cats) == {
+        "Переводы": 3000.0,
+        "Супермаркеты": 73.06,
+    }

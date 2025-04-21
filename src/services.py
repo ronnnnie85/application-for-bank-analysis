@@ -1,4 +1,12 @@
+import logging
+import os
 from typing import Any
+
+from src import loggers
+
+name = os.path.splitext(os.path.basename(__file__))[0]
+file_name = f"{name}.log"
+logger = loggers.create_logger(name, file_name, logging.DEBUG)
 
 
 def get_beneficial_categories(data: list[dict[str, Any]], year: str, month: str, percent_cashback: float = 5.0) -> str:

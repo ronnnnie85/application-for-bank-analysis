@@ -1,10 +1,17 @@
+import logging
+import os
 from datetime import datetime
 from typing import Optional
 
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 
+from src import loggers
 from src.config import AMOUNT_KEY, CATEGORY_KEY, DATE_TRANSACTIONS_KEY
+
+name = os.path.splitext(os.path.basename(__file__))[0]
+file_name = f"{name}.log"
+logger = loggers.create_logger(name, file_name, logging.DEBUG)
 
 
 def get_dataframe_spending(

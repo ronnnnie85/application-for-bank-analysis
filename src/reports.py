@@ -1,12 +1,18 @@
 import functools
 import json
+import logging
 import os
 from typing import Any, Callable, Iterable, Optional
 
 import pandas as pd
 
+from src import loggers
 from src.config import AMOUNT_KEY, CATEGORY_KEY, DATE_TRANSACTIONS_KEY, REPORTS_FOLDER_NAME, RUSSIAN_DAYS
 from src.reports_utils import get_dataframe_spending, get_dates_by_month
+
+name = os.path.splitext(os.path.basename(__file__))[0]
+file_name = f"{name}.log"
+logger = loggers.create_logger(name, file_name, logging.DEBUG)
 
 
 def log_reports_to_file(file_name: str = "report.json") -> Callable:

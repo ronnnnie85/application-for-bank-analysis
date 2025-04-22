@@ -51,6 +51,7 @@ def top_transactions_by_amount(
         tx
         for tx in data
         if tx.get(STATUS_KEY, "") == status
+        and (tx.get(AMOUNT_KEY, 0.0) if expense else -tx.get(AMOUNT_KEY, 0.0)) < 0.0
         and (tx.get(CATEGORY_KEY, "") not in except_categories if except_categories else True)
     ]
     data.sort(key=lambda x: x.get(AMOUNT_KEY, 0), reverse=not expense)

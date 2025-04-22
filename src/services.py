@@ -9,7 +9,8 @@ from dateutil.relativedelta import relativedelta
 from src import loggers
 from src.config import CATEGORY_KEY, DESCRIPTION_KEY
 from src.services_utils import get_cashback_categories, get_invest_amount, get_search_by_keyword
-from src.transaction_utils import get_transactions_by_date_period, get_transactions_for_categories
+from src.transaction_utils import get_transactions_by_date_period, get_transactions_for_categories, \
+    top_transactions_by_amount
 
 name = os.path.splitext(os.path.basename(__file__))[0]
 file_name = f"{name}.log"
@@ -24,10 +25,10 @@ def get_beneficial_categories(data: list[dict[str, Any]], year: str, month: str,
 
     filtered_data = get_transactions_by_date_period(data, start_date, end_date)
     cashback_data = get_cashback_categories(filtered_data, percent_cashback)
-    logger.info("Получен json с категориями кэшбека")
 
     try:
         result = json.dumps(cashback_data)
+        logger.info("Получен json с категориями кэшбека")
     except Exception as e:
         logger.error(f"Ошибка: {e}")
         result = json.dumps({})
@@ -41,6 +42,7 @@ def investment_bank(month: str, transactions: list[dict[str, Any]], limit: int) 
     end_date = start_date + relativedelta(months=1) - timedelta(days=1)
 
     filtered_data = get_transactions_by_date_period(transactions, start_date, end_date)
+    filtered_data = top_transactions_by_amount(filtered_data, except_categories={"Переводы"})
     logger.info("Получена сумма для инвесткопилки")
     return get_invest_amount(filtered_data, limit)
 
@@ -52,24 +54,26 @@ def simple_search(transactions: list[dict[str, Any]], keyword: str) -> str:
 
     try:
         result = json.dumps(data)
+        logger.info("Найдены транзакции")
     except Exception as e:
         logger.error(f"Ошибка: {e}")
         result = json.dumps({})
-    logger.info("Найдены транзакции")
+
     return result
 
 
 def search_by_phone(transactions: list[dict[str, Any]]) -> str:
     """Функция возвращает JSON со всеми транзакциями, содержащими в описании мобильные номера."""
     keyword = r"\+7\s\d{3}\s\d{3}\-\d{2}\-\d{2}"
-    data = get_search_by_keyword(transactions, keyword, {DESCRIPTION_KEY})
+    data = get_search_by_keyword(transactions, keyword, {DESCRIPTION_KEY}, esc_symbols=False)
 
     try:
         result = json.dumps(data)
+        logger.info("Найдены транзакции")
     except Exception as e:
         logger.error(f"Ошибка: {e}")
         result = json.dumps({})
-    logger.info("Найдены транзакции")
+
     return result
 
 
@@ -78,13 +82,14 @@ def search_person_transfer(transactions: list[dict[str, Any]]) -> str:
     Категория такой транзакции — Переводы, а в описании есть имя и первая буква фамилии с точкой.
     """
     keyword = r"[А-ЯЁ][а-яё]+ [А-ЯЁ]\."
-    cat_data = get_transactions_for_categories(transactions, {CATEGORY_KEY})
-    data = get_search_by_keyword(cat_data, keyword, {DESCRIPTION_KEY})
+    cat_data = get_transactions_for_categories(transactions, {"Переводы"})
+    data = get_search_by_keyword(cat_data, keyword, {DESCRIPTION_KEY}, esc_symbols=False)
 
     try:
         result = json.dumps(data)
+        logger.info("Найдены транзакции")
     except Exception as e:
         logger.error(f"Ошибка: {e}")
         result = json.dumps({})
-    logger.info("Найдены транзакции")
+
     return result

@@ -3,7 +3,6 @@ from src.services_utils import get_cashback_categories, get_invest_amount, get_s
 
 def test_get_cashback_categories(list_transactions):
     assert get_cashback_categories(list_transactions, percent_cashback=5.0) == {
-        "Переводы": 150,
         "Красота": 16,
         "Супермаркеты": 3,
     }

@@ -37,7 +37,7 @@ def get_dataframe_spending(
 
     filtered = df.loc[filter_data].copy()
     filtered[AMOUNT_KEY] = filtered[AMOUNT_KEY].abs()
-    filtered[DATE_TRANSACTIONS_KEY] = filtered[DATE_TRANSACTIONS_KEY].dt.strftime("%d.%m.%Y %H:%M:%S")
+    # filtered[DATE_TRANSACTIONS_KEY] = filtered[DATE_TRANSACTIONS_KEY].dt.strftime("%d.%m.%Y %H:%M:%S")
     logger.info("Получены фильтрованные dataframe")
     return filtered
 

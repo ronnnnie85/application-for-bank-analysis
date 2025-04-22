@@ -2,10 +2,12 @@ import json
 from datetime import datetime
 from unittest.mock import mock_open, patch
 
+import pandas as pd
 import pytest
 
 from src.utils import (get_amount_for_categories, get_greetings, get_json_file, get_last_digits_card_number,
-                       get_start_date, get_total_amount, get_total_amount_for_card, read_transactions_from_excel)
+                       get_start_date, get_total_amount, get_total_amount_for_card, read_transactions_from_excel,
+                       read_df_from_excel)
 
 
 @pytest.mark.parametrize(
@@ -100,3 +102,19 @@ def test_read_transactions_from_xlsx_wrong_type(mock_xlsx):
 
 def test_read_transactions_from_xlsx_file_not_found():
     assert read_transactions_from_excel("") == []
+
+
+@patch("pandas.read_excel")
+def test_read_df_from_excel(mock_xlsx, good_df):
+    mock_xlsx.return_value = good_df
+    assert read_df_from_excel("file.csv").equals(good_df)
+
+
+@patch("pandas.read_excel")
+def test_read_df_from_excel_wrong_type(mock_xlsx):
+    mock_xlsx.side_effect = ValueError("Тестовая ошибка")
+    assert read_df_from_excel("file.csv").equals(pd.DataFrame())
+
+
+def test_read_df_from_excel_file_not_found():
+    assert read_df_from_excel("").equals(pd.DataFrame())

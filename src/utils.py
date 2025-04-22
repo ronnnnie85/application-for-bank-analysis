@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import pandas as pd
+from pandas import DataFrame
 
 from src import loggers
 from src.config import AMOUNT_KEY, AMOUNT_ROUND_UP_KEY, CARD_NUMBER_KEY, CASHBACK_KEY, CATEGORY_KEY, STATUS_KEY
@@ -184,3 +185,13 @@ def read_transactions_from_excel(file_path: str) -> list[dict]:
     transactions = df.to_dict("records")
     logger.info(f"Файл {file_path} успешно обработан")
     return transactions
+
+
+def read_df_from_excel(file_path: str) -> DataFrame:
+    """Читает финансовые операции из Excel-файла и возвращает dataframe с транзакциями"""
+    try:
+        df = pd.read_excel(file_path)
+        return df
+    except (FileNotFoundError, ValueError) as e:
+        logger.error(f"Ошибка: {e}")
+        return pd.DataFrame()

@@ -7,8 +7,10 @@ from typing import Any, Callable, Iterable, Optional
 import pandas as pd
 
 from src import loggers
-from src.config import AMOUNT_KEY, CATEGORY_KEY, DATE_TRANSACTIONS_KEY, REPORTS_FOLDER_NAME, RUSSIAN_DAYS
+from src.config import AMOUNT_KEY, CATEGORY_KEY, DATE_TRANSACTIONS_KEY, REPORTS_FOLDER_NAME, RUSSIAN_DAYS, \
+    DATA_FOLDER_NAME, FILE_OPERATIONS
 from src.reports_utils import get_dataframe_spending, get_dates_by_month
+from src.utils import read_transactions_from_excel, read_df_from_excel
 
 name = os.path.splitext(os.path.basename(__file__))[0]
 file_name = f"{name}.log"
@@ -79,3 +81,6 @@ def spending_by_workday(transactions: pd.DataFrame, date: Optional[str] = None) 
     result = result.sort_values("type_day", ascending=False)
     logger.info("Получен dataframe с расходами по типам дней")
     return result
+
+
+print(spending_by_workday(read_df_from_excel(os.path.join(os.path.dirname(__file__), f"../{DATA_FOLDER_NAME}", FILE_OPERATIONS)), "2018-02-01"))

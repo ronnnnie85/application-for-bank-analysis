@@ -4,8 +4,16 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from src.utils import (get_amount_for_categories, get_greetings, get_json_file, get_last_digits_card_number,
-                       get_start_date, get_total_amount, get_total_amount_for_card)
+from src.utils import (
+    get_amount_for_categories,
+    get_greetings,
+    get_json_file,
+    get_last_digits_card_number,
+    get_start_date,
+    get_total_amount,
+    get_total_amount_for_card,
+    read_transactions_from_excel,
+)
 
 
 @pytest.mark.parametrize(
@@ -28,7 +36,7 @@ def test_get_last_digits_card_number(card_number, expected):
 
 def test_get_total_amount_for_card(list_transactions):
     assert get_total_amount_for_card(list_transactions, except_categories={"Переводы", "Супермаркеты"}) == {
-        "7197": {"Сумма": 337.0, "Кэшбек": 6.0}
+        "7197": {"sum": 337.0, "cashback": 6.0}
     }
 
 
@@ -84,3 +92,19 @@ def test_get_amount_for_categories_without_cats(list_transactions_without_cats):
         "Переводы": 3000.0,
         "Супермаркеты": 73.06,
     }
+
+
+@patch("pandas.read_excel")
+def test_transactions_from_xlsx(mock_xlsx, good_df):
+    mock_xlsx.return_value = good_df
+    assert read_transactions_from_excel("file.csv") == good_df.to_dict("records")
+
+
+@patch("pandas.read_excel")
+def test_read_transactions_from_xlsx_wrong_type(mock_xlsx):
+    mock_xlsx.side_effect = ValueError("Тестовая ошибка")
+    assert read_transactions_from_excel("file.csv") == []
+
+
+def test_read_transactions_from_xlsx_file_not_found():
+    assert read_transactions_from_excel("") == []

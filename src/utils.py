@@ -5,6 +5,8 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Any
 
+import pandas as pd
+
 from src import loggers
 from src.config import AMOUNT_KEY, AMOUNT_ROUND_UP_KEY, CARD_NUMBER_KEY, CASHBACK_KEY, CATEGORY_KEY, STATUS_KEY
 
@@ -67,9 +69,9 @@ def get_total_amount_for_card(
             continue
 
         if result.get(card_number) is None:
-            result[card_number] = {"Сумма": 0.0, "Кэшбек": 0.0}
-        result[card_number]["Сумма"] += float(amount_str)
-        result[card_number]["Кэшбек"] += float(transaction.get(CASHBACK_KEY, 0))
+            result[card_number] = {"sum": 0.0, "cashback": 0.0}
+        result[card_number]["sum"] += float(amount_str)
+        result[card_number]["cashback"] += float(transaction.get(CASHBACK_KEY, 0))
 
     logger.info("Получен словарь с номерами карт и суммами")
     return result
@@ -169,3 +171,16 @@ def get_amount_for_categories(
         f"{"расходов" if expense else "доходов"} по категориям"
     )
     return result
+
+
+def read_transactions_from_excel(file_path: str) -> list[dict]:
+    """Читает финансовые операции из Excel-файла и возвращает список словарей с транзакциями"""
+    try:
+        df = pd.read_excel(file_path)
+    except (FileNotFoundError, ValueError) as e:
+        logger.error(f"Ошибка: {e}")
+        return []
+
+    transactions = df.to_dict("records")
+    logger.info(f"Файл {file_path} успешно обработан")
+    return transactions

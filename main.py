@@ -79,7 +79,7 @@ def output_pages() -> None:
         res = get_data_events(input_date, input_type)
     else:
         res = get_data_main(input_date)
-
+    logger.info("Выведен результат для категории Страницы")
     print(res)
 
 
@@ -137,7 +137,7 @@ def output_services() -> None:
             res = search_by_phone(transactions)
         case "5":
             res = search_person_transfer(transactions)
-
+    logger.info("Выведен результат для категории Сервисы")
     print(res)
 
 
@@ -204,6 +204,7 @@ def output_reports() -> None:
             res = spending_by_workday(transactions, data)
 
     json_data = res[AMOUNT_KEY].to_dict()
+    logger.info("Выведен результат для категории Отчеты")
     print(json.dumps(json_data, indent=4, ensure_ascii=False))
 
 

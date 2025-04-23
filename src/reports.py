@@ -81,11 +81,3 @@ def spending_by_workday(transactions: pd.DataFrame, date: Optional[str] = None) 
     result = result.sort_values("type_day", ascending=False)
     logger.info("Получен dataframe с расходами по типам дней")
     return result
-
-
-print(
-    spending_by_workday(
-        read_df_from_excel(os.path.join(os.path.dirname(__file__), f"../{DATA_FOLDER_NAME}", FILE_OPERATIONS)),
-        "2018-02-01",
-    )
-)

@@ -7,7 +7,7 @@ import pytest
 
 from src.utils import (get_amount_for_categories, get_greetings, get_json_file, get_last_digits_card_number,
                        get_start_date, get_total_amount, get_total_amount_for_card, read_df_from_excel,
-                       read_transactions_from_excel)
+                       read_transactions_from_excel, is_valid_datetime)
 
 
 @pytest.mark.parametrize(
@@ -118,3 +118,11 @@ def test_read_df_from_excel_wrong_type(mock_xlsx):
 
 def test_read_df_from_excel_file_not_found():
     assert read_df_from_excel("").equals(pd.DataFrame())
+
+
+def test_is_valid_datetime():
+    assert not is_valid_datetime("2012.10.11 15:16:17", "%Y-%m-%d %H:%M:%S")
+
+
+def test_is_valid_datetime_true():
+    assert is_valid_datetime("01.01.2018 20:27:51", "%d.%m.%Y %H:%M:%S")

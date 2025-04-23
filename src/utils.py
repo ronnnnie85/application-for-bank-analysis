@@ -178,6 +178,7 @@ def read_transactions_from_excel(file_path: str) -> list[dict]:
     """Читает финансовые операции из Excel-файла и возвращает список словарей с транзакциями"""
     try:
         df = pd.read_excel(file_path)
+        df = df.fillna(value="")
     except (FileNotFoundError, ValueError) as e:
         logger.error(f"Ошибка: {e}")
         return []
@@ -191,6 +192,7 @@ def read_df_from_excel(file_path: str) -> DataFrame:
     """Читает финансовые операции из Excel-файла и возвращает dataframe с транзакциями"""
     try:
         df = pd.read_excel(file_path)
+        df = df.fillna(value="")
         return df
     except (FileNotFoundError, ValueError) as e:
         logger.error(f"Ошибка: {e}")

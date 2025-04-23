@@ -205,4 +205,8 @@ def output_reports() -> None:
             res = spending_by_workday(transactions, input_data)
 
     json_data = res.to_json(orient="records")
-    print(json.dumps(json_data, indent=4))
+    print(json.dumps(json_data, indent=4 ,ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

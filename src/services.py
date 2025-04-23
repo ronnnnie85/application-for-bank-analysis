@@ -9,11 +9,8 @@ from dateutil.relativedelta import relativedelta
 from src import loggers
 from src.config import CATEGORY_KEY, DESCRIPTION_KEY
 from src.services_utils import get_cashback_categories, get_invest_amount, get_search_by_keyword
-from src.transaction_utils import (
-    get_transactions_by_date_period,
-    get_transactions_for_categories,
-    top_transactions_by_amount,
-)
+from src.transaction_utils import (get_transactions_by_date_period, get_transactions_for_categories,
+                                   top_transactions_by_amount)
 
 name = os.path.splitext(os.path.basename(__file__))[0]
 file_name = f"{name}.log"

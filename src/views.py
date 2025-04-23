@@ -6,27 +6,12 @@ from typing import Any
 
 from src import loggers
 from src.api_utils import get_currency_rates, get_stock_prices
-from src.config import (
-    AMOUNT_ROUND_UP_KEY,
-    CATEGORY_KEY,
-    DATA_FOLDER_NAME,
-    DATE_TRANSACTIONS_KEY,
-    DESCRIPTION_KEY,
-    FILE_OPERATIONS,
-)
-from src.transaction_utils import (
-    get_transactions_by_date_period,
-    get_transactions_for_categories,
-    top_transactions_by_amount,
-)
-from src.utils import (
-    get_amount_for_categories,
-    get_greetings,
-    get_start_date,
-    get_total_amount,
-    get_total_amount_for_card,
-    read_transactions_from_excel,
-)
+from src.config import (AMOUNT_ROUND_UP_KEY, CATEGORY_KEY, DATA_FOLDER_NAME, DATE_TRANSACTIONS_KEY, DESCRIPTION_KEY,
+                        FILE_OPERATIONS)
+from src.transaction_utils import (get_transactions_by_date_period, get_transactions_for_categories,
+                                   top_transactions_by_amount)
+from src.utils import (get_amount_for_categories, get_greetings, get_start_date, get_total_amount,
+                       get_total_amount_for_card, read_transactions_from_excel)
 
 name = os.path.splitext(os.path.basename(__file__))[0]
 file_name = f"{name}.log"
@@ -61,7 +46,9 @@ def get_data_main(date_time: str) -> str:
     top_transactions = top_transactions_by_amount(filtered_data, num_top_cats=5)
     result["top_transactions"] = [
         {
-            "date": datetime.strftime(datetime.strptime(tx.get(DATE_TRANSACTIONS_KEY, ""), "%d.%m.%Y %H:%M:%S"), "%d.%m.%Y"),
+            "date": datetime.strftime(
+                datetime.strptime(tx.get(DATE_TRANSACTIONS_KEY, ""), "%d.%m.%Y %H:%M:%S"), "%d.%m.%Y"
+            ),
             "amount": round(tx.get(AMOUNT_ROUND_UP_KEY, 0.0), 2),
             "category": tx.get(CATEGORY_KEY, ""),
             "description": tx.get(DESCRIPTION_KEY, ""),

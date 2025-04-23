@@ -1,13 +1,8 @@
 import json
 from unittest.mock import patch
 
-from src.services import (
-    get_beneficial_categories,
-    investment_bank,
-    simple_search,
-    search_by_phone,
-    search_person_transfer,
-)
+from src.services import (get_beneficial_categories, investment_bank, search_by_phone, search_person_transfer,
+                          simple_search)
 
 
 def test_get_beneficial_categories(list_transactions):

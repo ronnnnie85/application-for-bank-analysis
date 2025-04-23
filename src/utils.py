@@ -195,3 +195,12 @@ def read_df_from_excel(file_path: str) -> DataFrame:
     except (FileNotFoundError, ValueError) as e:
         logger.error(f"Ошибка: {e}")
         return pd.DataFrame()
+
+
+def is_valid_datetime(datetime_str: str, format_str: str) -> bool:
+    """Проверка валидности строки со временем"""
+    try:
+        datetime.strptime(datetime_str, format_str)
+        return True
+    except ValueError:
+        return False

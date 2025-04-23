@@ -63,10 +63,10 @@ def get_data_main(date_time: str) -> str:
     result["stock_prices"] = [{"stock": key, "price": round(value, 2)} for key, value in stock_prices.items()]
 
     try:
-        data_json = json.dumps(result)
+        data_json = json.dumps(result, indent=4)
     except Exception as e:
         logger.error(f"Ошибка: {e}")
-        data_json = json.dumps({})
+        data_json = json.dumps({}, indent=4)
     logger.info("Получен json для главной страницы")
     return data_json
 
@@ -113,9 +113,9 @@ def get_data_events(date_time: str, date_period: str = "M") -> str:
     result["stock_prices"] = [{"stock": key, "price": round(value, 2)} for key, value in stock_prices.items()]
 
     try:
-        data_json = json.dumps(result)
+        data_json = json.dumps(result, indent=4)
     except Exception as e:
         logger.error(f"Ошибка: {e}")
-        data_json = json.dumps({})
+        data_json = json.dumps({}, indent=4)
     logger.info("Получен json для страницы События")
     return data_json

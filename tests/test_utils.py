@@ -5,9 +5,17 @@ from unittest.mock import mock_open, patch
 import pandas as pd
 import pytest
 
-from src.utils import (get_amount_for_categories, get_greetings, get_json_file, get_last_digits_card_number,
-                       get_start_date, get_total_amount, get_total_amount_for_card, read_transactions_from_excel,
-                       read_df_from_excel)
+from src.utils import (
+    get_amount_for_categories,
+    get_greetings,
+    get_json_file,
+    get_last_digits_card_number,
+    get_start_date,
+    get_total_amount,
+    get_total_amount_for_card,
+    read_transactions_from_excel,
+    read_df_from_excel,
+)
 
 
 @pytest.mark.parametrize(

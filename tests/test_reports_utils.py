@@ -7,8 +7,8 @@ def test_get_dataframe_spending(dataframe_tr, test_date_start, test_date_end):
     result_df = get_dataframe_spending(dataframe_tr, test_date_start, test_date_end, "Красота")
 
     result_records = result_df.copy()
-    result_records['Дата операции'] = result_records['Дата операции'].dt.strftime('%d.%m.%Y %H:%M:%S')
-    result_records = result_records.to_dict('records')
+    result_records["Дата операции"] = result_records["Дата операции"].dt.strftime("%d.%m.%Y %H:%M:%S")
+    result_records = result_records.to_dict("records")
 
     expected = [
         {
@@ -54,8 +54,8 @@ def test_get_dataframe_spending_incomes(dataframe_tr, test_date_start, test_date
     result_df = get_dataframe_spending(dataframe_tr, test_date_start, test_date_end, "Красота", False)
 
     result_records = result_df.copy()
-    result_records['Дата операции'] = result_records['Дата операции'].dt.strftime('%d.%m.%Y %H:%M:%S')
-    result_records = result_records.to_dict('records')
+    result_records["Дата операции"] = result_records["Дата операции"].dt.strftime("%d.%m.%Y %H:%M:%S")
+    result_records = result_records.to_dict("records")
 
     expected = [
         {

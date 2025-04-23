@@ -63,10 +63,10 @@ def get_data_main(date_time: str) -> str:
     result["stock_prices"] = [{"stock": key, "price": round(value, 2)} for key, value in stock_prices.items()]
 
     try:
-        data_json = json.dumps(result, indent=4 ,ensure_ascii=False)
+        data_json = json.dumps(result, indent=4, ensure_ascii=False)
     except Exception as e:
         logger.error(f"Ошибка: {e}")
-        data_json = json.dumps({}, indent=4 ,ensure_ascii=False)
+        data_json = json.dumps({}, indent=4, ensure_ascii=False)
     logger.info("Получен json для главной страницы")
     return data_json
 
@@ -84,7 +84,7 @@ def get_data_events(date_time: str, date_period: str = "M") -> str:
     filtered_data = get_transactions_by_date_period(transactions, start_date, end_date)
 
     result["expenses"] = {}
-    result["expenses"]["total_amount"] = get_total_amount(filtered_data)
+    result["expenses"]["total_amount"] = round(get_total_amount(filtered_data), 2)
 
     categories_expenses = get_amount_for_categories(filtered_data, num_top_cats=7)
     result["expenses"]["main"] = [
@@ -113,9 +113,9 @@ def get_data_events(date_time: str, date_period: str = "M") -> str:
     result["stock_prices"] = [{"stock": key, "price": round(value, 2)} for key, value in stock_prices.items()]
 
     try:
-        data_json = json.dumps(result, indent=4 ,ensure_ascii=False)
+        data_json = json.dumps(result, indent=4, ensure_ascii=False)
     except Exception as e:
         logger.error(f"Ошибка: {e}")
-        data_json = json.dumps({}, indent=4 ,ensure_ascii=False)
+        data_json = json.dumps({}, indent=4, ensure_ascii=False)
     logger.info("Получен json для страницы События")
     return data_json

@@ -27,11 +27,11 @@ def get_beneficial_categories(data: list[dict[str, Any]], year: str, month: str,
     cashback_data = get_cashback_categories(filtered_data, percent_cashback)
 
     try:
-        result = json.dumps(cashback_data, indent=4 ,ensure_ascii=False)
+        result = json.dumps(cashback_data, indent=4, ensure_ascii=False)
         logger.info("Получен json с категориями кэшбека")
     except Exception as e:
         logger.error(f"Ошибка: {e}")
-        result = json.dumps({}, indent=4 ,ensure_ascii=False)
+        result = json.dumps({}, indent=4, ensure_ascii=False)
 
     return result
 
@@ -53,11 +53,11 @@ def simple_search(transactions: list[dict[str, Any]], keyword: str) -> str:
     data = get_search_by_keyword(transactions, keyword, {CATEGORY_KEY, DESCRIPTION_KEY})
 
     try:
-        result = json.dumps(data, indent=4 ,ensure_ascii=False)
+        result = json.dumps(data, indent=4, ensure_ascii=False)
         logger.info("Найдены транзакции")
     except Exception as e:
         logger.error(f"Ошибка: {e}")
-        result = json.dumps({}, indent=4 ,ensure_ascii=False)
+        result = json.dumps({}, indent=4, ensure_ascii=False)
 
     return result
 
@@ -68,11 +68,11 @@ def search_by_phone(transactions: list[dict[str, Any]]) -> str:
     data = get_search_by_keyword(transactions, keyword, {DESCRIPTION_KEY}, esc_symbols=False)
 
     try:
-        result = json.dumps(data, indent=4 ,ensure_ascii=False)
+        result = json.dumps(data, indent=4, ensure_ascii=False)
         logger.info("Найдены транзакции")
     except Exception as e:
         logger.error(f"Ошибка: {e}")
-        result = json.dumps({}, indent=4 ,ensure_ascii=False)
+        result = json.dumps({}, indent=4, ensure_ascii=False)
 
     return result
 
@@ -86,10 +86,10 @@ def search_person_transfer(transactions: list[dict[str, Any]]) -> str:
     data = get_search_by_keyword(cat_data, keyword, {DESCRIPTION_KEY}, esc_symbols=False)
 
     try:
-        result = json.dumps(data, indent=4 ,ensure_ascii=False)
+        result = json.dumps(data, indent=4, ensure_ascii=False)
         logger.info("Найдены транзакции")
     except Exception as e:
         logger.error(f"Ошибка: {e}")
-        result = json.dumps({}, indent=4 ,ensure_ascii=False)
+        result = json.dumps({}, indent=4, ensure_ascii=False)
 
     return result

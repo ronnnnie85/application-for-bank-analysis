@@ -52,8 +52,10 @@ def test_get_data_main(
             "stock_prices": [
                 {"stock": "AAPL", "price": 150.12},
             ],
-        }
-    , indent=4 ,ensure_ascii=False)
+        },
+        indent=4,
+        ensure_ascii=False,
+    )
 
     assert result == expected
 
@@ -89,7 +91,7 @@ def test_get_data_main_err(
     with patch("src.views.json.dumps") as mock_json:
         mock_json.side_effect = [ValueError, "{}"]
         result = get_data_main("2018-01-31 12:14:00")
-    expected = json.dumps({}, indent=4 ,ensure_ascii=False)
+    expected = json.dumps({}, indent=4, ensure_ascii=False)
 
     assert result == expected
 
@@ -139,8 +141,10 @@ def test_get_data_events(
                 {"currency": "USD", "rate": 73.21},
             ],
             "stock_prices": [{"stock": "AAPL", "price": 150.12}],
-        }
-    , indent=4 ,ensure_ascii=False)
+        },
+        indent=4,
+        ensure_ascii=False,
+    )
     result = get_data_events("2018-01-31 12:14:00")
     assert result == expected
 
@@ -171,6 +175,6 @@ def test_get_data_events_err(
     with patch("src.views.json.dumps") as mock_json:
         mock_json.side_effect = [ValueError, "{}"]
         result = get_data_events("2018-01-31 12:14:00")
-    expected = json.dumps({}, indent=4 ,ensure_ascii=False)
+    expected = json.dumps({}, indent=4, ensure_ascii=False)
 
     assert result == expected

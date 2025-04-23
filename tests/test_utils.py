@@ -6,8 +6,8 @@ import pandas as pd
 import pytest
 
 from src.utils import (get_amount_for_categories, get_greetings, get_json_file, get_last_digits_card_number,
-                       get_start_date, get_total_amount, get_total_amount_for_card, read_df_from_excel,
-                       read_transactions_from_excel, is_valid_datetime)
+                       get_start_date, get_total_amount, get_total_amount_for_card, is_valid_datetime,
+                       read_df_from_excel, read_transactions_from_excel)
 
 
 @pytest.mark.parametrize(

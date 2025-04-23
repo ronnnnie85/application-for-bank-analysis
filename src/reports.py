@@ -7,10 +7,8 @@ from typing import Any, Callable, Iterable, Optional
 import pandas as pd
 
 from src import loggers
-from src.config import (AMOUNT_KEY, CATEGORY_KEY, DATA_FOLDER_NAME, DATE_TRANSACTIONS_KEY, FILE_OPERATIONS,
-                        REPORTS_FOLDER_NAME, RUSSIAN_DAYS)
+from src.config import AMOUNT_KEY, CATEGORY_KEY, DATE_TRANSACTIONS_KEY, REPORTS_FOLDER_NAME, RUSSIAN_DAYS
 from src.reports_utils import get_dataframe_spending, get_dates_by_month
-from src.utils import read_df_from_excel
 
 name = os.path.splitext(os.path.basename(__file__))[0]
 file_name = f"{name}.log"
